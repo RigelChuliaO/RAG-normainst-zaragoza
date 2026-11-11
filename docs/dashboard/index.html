@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plan RAG Normativa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Plan: plano técnico (blueprint). Fondo cuadriculado, azul de plano como acento, ámbar de señal para lo vivo.
+   Layout: cabecera con robot -> resumen -> esquema RAG -> fases -> cuándo NO -> repo y reglas. */
+:root{
+  --bg:#edf1f6; --surface:#ffffff; --ink:#0f1d2e; --muted:#58697e; --line:#d3dce7;
+  --accent:#1d5fd1; --accent-soft:rgba(29,95,209,.10); --signal:#d9860a; --signal-soft:rgba(217,134,10,.14);
+  --good:#178a5d; --good-soft:rgba(23,138,93,.12); --grid:rgba(29,95,209,.06);
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+  --radius:12px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0a1320; --surface:#111d2e; --ink:#e5ecf5; --muted:#93a3b8; --line:#22334a;
+    --accent:#6ea4ff; --accent-soft:rgba(110,164,255,.14); --signal:#f3ad3c; --signal-soft:rgba(243,173,60,.16);
+    --good:#3fcf96; --good-soft:rgba(63,207,150,.14); --grid:rgba(110,164,255,.05);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0a1320; --surface:#111d2e; --ink:#e5ecf5; --muted:#93a3b8; --line:#22334a;
+  --accent:#6ea4ff; --accent-soft:rgba(110,164,255,.14); --signal:#f3ad3c; --signal-soft:rgba(243,173,60,.16);
+  --good:#3fcf96; --good-soft:rgba(63,207,150,.14); --grid:rgba(110,164,255,.05);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--body); font-size:15px; line-height:1.5;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+}
+.wrap{max-width:1120px; margin:0 auto; padding:24px 16px 64px; display:grid; gap:28px}
+h1,h2,h3{font-family:var(--display); text-wrap:balance; margin:0; line-height:1.15}
+h1{font-size:clamp(26px,5vw,40px); font-weight:800; letter-spacing:-.01em}
+h2{font-size:22px; font-weight:800}
+h3{font-size:17px; font-weight:600}
+p{margin:0}
+code,.mono{font-family:var(--mono); font-size:.88em}
+button{font:inherit; color:inherit; cursor:pointer}
+button:focus-visible,.node:focus-visible,.card:focus-visible{outline:3px solid var(--signal); outline-offset:2px}
+.panel{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:20px}
+.sec-head{display:flex; align-items:end; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px}
+.sec-head p{color:var(--muted); max-width:62ch}
+.tag{font-family:var(--mono); font-size:12px; color:var(--accent); letter-spacing:.04em}
+
+/* Cabecera y robot */
+header{display:grid; grid-template-columns:auto 1fr; gap:20px; align-items:center}
+.robot-box{position:relative; width:150px}
+.robot{width:150px; height:auto; display:block; cursor:pointer; animation:bob 3.2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-6px)}}
+.eye{transform-box:fill-box; transform-origin:center; animation:blink 4.5s infinite}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+.bulb{transition:fill .15s}
+.robot.beeping .bulb{fill:var(--signal)}
+.robot.beeping .chest{fill:var(--signal)}
+.robot.beeping{animation:shake .35s}
+@keyframes shake{25%{transform:rotate(-4deg)}75%{transform:rotate(4deg)}}
+.waves{opacity:0}
+.robot.beeping .waves{animation:wave .6s ease-out}
+@keyframes wave{0%{opacity:1}100%{opacity:0}}
+.bubble{
+  position:relative; background:var(--surface); border:1.5px solid var(--accent); border-radius:14px;
+  padding:12px 14px; font-weight:500; min-height:48px; max-width:52ch;
+}
+.bubble::before{content:""; position:absolute; left:-9px; top:18px; width:14px; height:14px; background:var(--surface);
+  border-left:1.5px solid var(--accent); border-bottom:1.5px solid var(--accent); transform:rotate(45deg)}
+.bubble .beep{font-family:var(--mono); color:var(--signal); font-weight:500; margin-right:6px}
+.head-text{display:grid; gap:12px}
+.head-text .sub{color:var(--muted)}
+.head-actions{display:flex; gap:8px; flex-wrap:wrap}
+.btn{border:1.5px solid var(--accent); background:var(--accent); color:#fff; border-radius:999px; padding:7px 14px; font-weight:600; font-size:14px}
+.btn.ghost{background:transparent; color:var(--accent)}
+.btn:hover{filter:brightness(1.08)}
+
+/* Resumen */
+.tiles{display:grid; grid-template-columns:repeat(4,1fr); gap:12px}
+.tile{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:16px; display:grid; gap:4px; align-content:start}
+.tile .k{font-size:13px; color:var(--muted)}
+.tile .v{font-family:var(--display); font-size:28px; font-weight:800; font-variant-numeric:tabular-nums}
+.tile .n{font-size:13px; color:var(--muted)}
+.meter{height:8px; background:var(--accent-soft); border-radius:99px; overflow:hidden; margin-top:6px}
+.meter i{display:block; height:100%; width:0; background:var(--good); border-radius:99px; transition:width .5s}
+
+/* Esquema RAG */
+.rag-bar{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+.seg{display:inline-flex; border:1.5px solid var(--accent); border-radius:999px; overflow:hidden}
+.seg button{border:0; background:transparent; padding:6px 14px; font-weight:600; font-size:14px; color:var(--accent)}
+.seg button[aria-pressed="true"]{background:var(--accent); color:#fff}
+.rag{display:grid; grid-template-columns:1fr 1fr minmax(260px,1.1fr); gap:16px; margin-top:16px; align-items:start}
+.lane{border:1.5px dashed var(--line); border-radius:var(--radius); padding:14px; display:grid; gap:0}
+.lane h3{font-size:15px; margin-bottom:4px}
+.lane .lane-sub{font-size:12.5px; color:var(--muted); margin-bottom:12px}
+.node{
+  width:100%; text-align:left; background:var(--surface); border:1.5px solid var(--line); border-radius:10px;
+  padding:9px 12px; display:grid; gap:2px; position:relative; transition:border-color .15s, background .15s, transform .15s;
+}
+.node:hover{border-color:var(--accent)}
+.node .nt{font-weight:600; font-size:14px}
+.node .ns{font-family:var(--mono); font-size:11.5px; color:var(--muted)}
+.node .ph{position:absolute; right:8px; top:8px; font-family:var(--mono); font-size:10.5px; color:var(--accent); background:var(--accent-soft); padding:1px 6px; border-radius:99px}
+.node.sel{border-color:var(--accent); background:var(--accent-soft)}
+.node.hot{border-color:var(--signal); background:var(--signal-soft); transform:scale(1.02)}
+.arrow{height:20px; display:grid; place-items:center; color:var(--muted); font-size:13px}
+.arrow::before{content:""; width:1.5px; height:12px; background:var(--muted)}
+.arrow::after{content:""; border:5px solid transparent; border-top-color:var(--muted); margin-top:-1px}
+.arrow{grid-template-rows:12px 6px}
+.link-note{margin-top:10px; font-size:12.5px; color:var(--muted); border-top:1px dashed var(--line); padding-top:8px}
+.link-note b{color:var(--accent)}
+.detail{position:sticky; top:12px; border:1.5px solid var(--accent); border-radius:var(--radius); padding:16px; background:var(--surface); display:grid; gap:10px}
+.detail .row{display:grid; gap:2px}
+.detail .lbl{font-size:12px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.05em}
+.detail .warn{background:var(--signal-soft); border-left:3px solid var(--signal); padding:8px 10px; border-radius:6px; font-size:14px}
+.eval-node{margin-top:14px}
+.ext-chips{display:flex; gap:6px; flex-wrap:wrap; margin-top:12px}
+.chip{font-size:12px; border:1px solid var(--line); border-radius:99px; padding:2px 9px; color:var(--muted); background:var(--surface)}
+
+/* Fases */
+.gantt{display:grid; gap:6px; overflow-x:auto}
+.g-row{display:grid; grid-template-columns:minmax(150px,210px) 44px 1fr; gap:8px; align-items:center; min-width:560px}
+.g-head .weeks{display:grid; grid-template-columns:repeat(17,1fr); font-family:var(--mono); font-size:10.5px; color:var(--muted); text-align:center}
+.g-name{border:0; background:transparent; text-align:left; padding:4px 0; font-weight:500; font-size:14px; display:flex; align-items:center; gap:8px}
+.g-name:hover{color:var(--accent)}
+.dot{width:10px; height:10px; border-radius:50%; border:2px solid var(--muted); flex:none}
+.dot.doing{border-color:var(--signal); background:var(--signal)}
+.dot.done{border-color:var(--good); background:var(--good)}
+.g-h{font-family:var(--mono); font-size:12px; color:var(--muted); text-align:right; font-variant-numeric:tabular-nums}
+.track{display:grid; grid-template-columns:repeat(17,1fr); height:26px; position:relative;
+  background-image:linear-gradient(90deg,var(--line) 1px,transparent 1px); background-size:calc(100%/17) 100%}
+.bar{border-radius:99px; border:1.5px solid var(--accent); background:var(--accent-soft); margin:3px 2px; cursor:pointer; padding:0}
+.bar.ext{border-color:var(--muted); background:transparent}
+.bar.opt{border-style:dashed}
+.bar.doing{border-color:var(--signal); background:var(--signal-soft)}
+.bar.done{border-color:var(--good); background:var(--good)}
+.bar.sel{box-shadow:0 0 0 3px var(--accent-soft)}
+.g-row.core-end .track::after{content:""; position:absolute; top:-4px; bottom:-4px; left:calc(100%/17*7); border-left:2px dashed var(--signal)}
+.legend{display:flex; gap:14px; flex-wrap:wrap; font-size:12.5px; color:var(--muted); margin-top:10px}
+.legend span{display:inline-flex; gap:6px; align-items:center}
+.sw{width:22px; height:10px; border-radius:99px; border:1.5px solid var(--accent); background:var(--accent-soft)}
+.sw.ext{border-color:var(--muted); background:transparent}
+.sw.end{border:0; border-left:2px dashed var(--signal); border-radius:0; width:2px; height:14px}
+.phase-detail{margin-top:18px; border-top:1px solid var(--line); padding-top:18px; display:grid; gap:14px}
+.pd-top{display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:start}
+.pd-top .meta{font-family:var(--mono); font-size:12.5px; color:var(--muted)}
+.status-seg button[aria-pressed="true"][data-s="doing"]{background:var(--signal); border-color:var(--signal)}
+.status-seg button[aria-pressed="true"][data-s="done"]{background:var(--good)}
+.status-seg{border-color:var(--line)}
+.status-seg button{color:var(--ink)}
+.status-seg button[aria-pressed="true"]{color:#fff}
+.pd-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+.box{border:1px solid var(--line); border-radius:10px; padding:12px 14px}
+.box h4{margin:0 0 6px; font-size:13px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted)}
+.box ul{margin:0; padding-left:18px; display:grid; gap:4px}
+.box.warn{border-color:var(--signal); background:var(--signal-soft)}
+.box.ok{border-color:var(--good); background:var(--good-soft)}
+
+/* Cuándo NO */
+.cards{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+.card{perspective:900px; min-height:150px; border:0; padding:0; background:transparent; text-align:left}
+.card-in{position:relative; height:100%; min-height:150px; transition:transform .5s; transform-style:preserve-3d}
+.card.flip .card-in{transform:rotateY(180deg)}
+.face{position:absolute; inset:0; backface-visibility:hidden; border-radius:var(--radius); padding:16px; display:grid; align-content:space-between; gap:8px; border:1px solid var(--line); background:var(--surface)}
+.face.front{border-left:4px solid var(--signal)}
+.face.front b{font-family:var(--display); font-size:17px; font-weight:600}
+.face.back{transform:rotateY(180deg); background:var(--accent-soft); border-color:var(--accent); font-size:14px}
+.hint{font-size:12px; color:var(--muted); font-family:var(--mono)}
+
+/* Repo, reglas, pendientes */
+.three{display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:16px; align-items:start}
+pre.tree{margin:0; font-family:var(--mono); font-size:12.5px; line-height:1.6; overflow-x:auto; color:var(--ink)}
+pre.tree .c{color:var(--muted)}
+.checks{display:grid; gap:10px}
+.checks label{display:grid; grid-template-columns:20px 1fr; gap:8px; align-items:start; font-size:14px; cursor:pointer}
+.checks input{width:17px; height:17px; margin-top:2px; accent-color:var(--good)}
+.checks input:checked + span{color:var(--muted); text-decoration:line-through}
+.rules{display:grid; gap:8px; padding:0; margin:0; list-style:none}
+.rules li{display:grid; grid-template-columns:auto 1fr; gap:10px; font-size:14px}
+.rules li::before{content:""; width:8px; height:8px; margin-top:7px; border-radius:2px; background:var(--accent)}
+footer{color:var(--muted); font-size:13px}
+
+@media (max-width:900px){
+  .rag{grid-template-columns:1fr 1fr}
+  .detail{grid-column:1/-1; position:static}
+  .tiles{grid-template-columns:1fr 1fr}
+  .cards{grid-template-columns:1fr 1fr}
+  .three{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  header{grid-template-columns:1fr; justify-items:start}
+  .robot-box,.robot{width:110px}
+  .rag{grid-template-columns:1fr}
+  .pd-grid{grid-template-columns:1fr}
+  .cards{grid-template-columns:1fr}
+  .tile .v{font-size:24px}
+  .bubble::before{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important; transition:none !important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="robot-box">
+    <svg class="robot" id="robot" viewBox="0 0 160 190" role="img" aria-label="Robot asistente: púlsalo para que haga beep" tabindex="0">
+      <g class="waves" fill="none" stroke="var(--signal)" stroke-width="3" stroke-linecap="round">
+        <path d="M58 14 q-8 8 0 16"/><path d="M48 8 q-14 14 0 28"/>
+        <path d="M102 14 q8 8 0 16"/><path d="M112 8 q14 14 0 28"/>
+      </g>
+      <line x1="80" y1="22" x2="80" y2="42" stroke="var(--muted)" stroke-width="4" stroke-linecap="round"/>
+      <circle class="bulb" cx="80" cy="18" r="8" fill="var(--accent)"/>
+      <rect x="28" y="42" width="104" height="80" rx="20" fill="var(--surface)" stroke="var(--accent)" stroke-width="4"/>
+      <rect x="18" y="68" width="10" height="26" rx="4" fill="var(--accent)"/>
+      <rect x="132" y="68" width="10" height="26" rx="4" fill="var(--accent)"/>
+      <rect x="40" y="54" width="80" height="56" rx="12" fill="var(--ink)"/>
+      <g id="eyes">
+        <rect class="eye" x="54" y="70" width="14" height="18" rx="5" fill="var(--signal)"/>
+        <rect class="eye" x="92" y="70" width="14" height="18" rx="5" fill="var(--signal)"/>
+      </g>
+      <path id="mouth" d="M66 98 q14 8 28 0" fill="none" stroke="var(--signal)" stroke-width="3" stroke-linecap="round"/>
+      <rect x="70" y="122" width="20" height="8" fill="var(--muted)"/>
+      <rect x="40" y="130" width="80" height="48" rx="14" fill="var(--surface)" stroke="var(--accent)" stroke-width="4"/>
+      <circle class="chest" cx="66" cy="154" r="7" fill="var(--accent)"/>
+      <rect x="80" y="148" width="26" height="4" rx="2" fill="var(--muted)"/>
+      <rect x="80" y="156" width="18" height="4" rx="2" fill="var(--muted)"/>
+    </svg>
+  </div>
+  <div class="head-text">
+    <span class="tag">ASISTENTE RAG · NORMATIVA TÉCNICA · PLAN DE TRABAJO</span>
+    <h1>Python puro primero, LangChain después</h1>
+    <div class="bubble" id="bubble" aria-live="polite"><span class="beep">BEEP</span>Púlsame y te recuerdo algo útil. Pulsa «Simular consulta» y te enseño cómo viaja una pregunta por el RAG.</div>
+    <div class="head-actions">
+      <button class="btn" id="simBtn" type="button">Simular consulta</button>
+      <button class="btn ghost" id="soundBtn" type="button" aria-pressed="true">Sonido: sí</button>
+    </div>
+  </div>
+</header>
+
+<section class="tiles" aria-label="Resumen">
+  <div class="tile"><span class="k">Núcleo del proyecto</span><span class="v">50 h</span><span class="n">F0 a F4 · listo hacia la semana 7</span></div>
+  <div class="tile"><span class="k">Extensiones</span><span class="v">62 h</span><span class="n">F5 a F8 · hasta la semana 17</span></div>
+  <div class="tile"><span class="k">Tu progreso</span><span class="v" id="progV">0 %</span><span class="n" id="progN">0 de 112 h hechas</span><div class="meter"><i id="progBar"></i></div></div>
+  <div class="tile"><span class="k">Hardware · GPU 4 GB</span><span class="v">Qwen 3-4B</span><span class="n">Cuantizado a 4 bits, unos 2-3 GB (aprox.). Un 7B no cabe entero.</span></div>
+</section>
+
+<section class="panel" aria-labelledby="ragT">
+  <div class="sec-head">
+    <div>
+      <span class="tag">ARQUITECTURA</span>
+      <h2 id="ragT">Esquema del RAG</h2>
+      <p>Pulsa cada pieza para ver qué hace, en qué fichero vive y el error típico. Cambia a la vista LangChain para ver qué abstracción sustituye a cada función tuya en la Fase 2B.</p>
+    </div>
+    <div class="rag-bar">
+      <div class="seg" role="group" aria-label="Vista del esquema">
+        <button type="button" data-view="py" aria-pressed="true">Python puro</button>
+        <button type="button" data-view="lc" aria-pressed="false">LangChain</button>
+      </div>
+    </div>
+  </div>
+  <div class="rag">
+    <div class="lane">
+      <h3>1 · Ingesta</h3>
+      <span class="lane-sub">Una vez, o al cambiar el corpus</span>
+      <div id="laneIngest"></div>
+    </div>
+    <div class="lane">
+      <h3>2 · Consulta</h3>
+      <span class="lane-sub">En cada pregunta</span>
+      <div id="laneQuery"></div>
+      <div class="link-note">La búsqueda lee del <b>almacén vectorial</b> que llena la ingesta.</div>
+    </div>
+    <aside class="detail" id="detail" aria-live="polite"></aside>
+  </div>
+  <button class="node eval-node" type="button" data-node="eval" id="evalNode"></button>
+  <div class="ext-chips" aria-label="Extensiones que tocan el esquema">
+    <span class="chip">F3 · todo en contenedores, Chroma → pgvector</span>
+    <span class="chip">F4 · FastAPI + Streamlit por encima de answer()</span>
+    <span class="chip">F5 · búsqueda híbrida y re-ranking</span>
+    <span class="chip">F6 · el grafo arrastra artículos relacionados</span>
+    <span class="chip">F7 · un agente decide qué herramienta usar</span>
+  </div>
+</section>
+
+<section class="panel" aria-labelledby="fasesT">
+  <div class="sec-head">
+    <div>
+      <span class="tag">CALENDARIO · 8-10 H/SEMANA</span>
+      <h2 id="fasesT">Fases</h2>
+      <p>Pulsa una fase para ver conceptos, errores típicos y cómo sabrías que funciona. Marca su estado y el progreso se guarda en este navegador.</p>
+    </div>
+  </div>
+  <div class="gantt" id="gantt"></div>
+  <div class="legend">
+    <span><i class="sw"></i>Núcleo</span><span><i class="sw ext"></i>Extensión</span>
+    <span><i class="sw end"></i>Fin del núcleo: proyecto enseñable</span>
+  </div>
+  <div class="phase-detail" id="phaseDetail"></div>
+</section>
+
+<section aria-labelledby="noT">
+  <div class="sec-head">
+    <div>
+      <span class="tag">PREGUNTAS DE ENTREVISTA</span>
+      <h2 id="noT">El criterio del «cuándo NO»</h2>
+      <p>Intenta responder antes de girar la tarjeta. Las respuestas son orientativas: discútelas.</p>
+    </div>
+  </div>
+  <div class="cards" id="cards"></div>
+</section>
+
+<section class="three">
+  <div class="panel">
+    <span class="tag">REPOSITORIO</span>
+    <h2 style="margin-bottom:12px">Estructura</h2>
+<pre class="tree">rag-normativa/
+├── README.md        <span class="c"># en inglés, con resultados</span>
+├── .env.example
+├── .gitignore       <span class="c"># .env, data/raw/</span>
+├── requirements.txt <span class="c"># versiones fijadas</span>
+├── docs/decisions.md
+├── data/
+│   ├── raw/         <span class="c"># PDFs, fuera de git</span>
+│   └── sample/      <span class="c"># muestra del BOE</span>
+├── src/rag/         <span class="c"># Python puro (F1)</span>
+│   ├── ingest.py
+│   ├── chunking.py  <span class="c"># lo reutiliza la F2B</span>
+│   ├── embeddings.py
+│   ├── store.py
+│   ├── generate.py
+│   └── pipeline.py  <span class="c"># answer() -> Answer</span>
+├── langchain_port/  <span class="c"># F2B, misma interfaz</span>
+├── eval/
+│   ├── golden_set.jsonl
+│   ├── run_eval.py  <span class="c"># --pipeline pure|langchain</span>
+│   └── results/
+└── tests/</pre>
+  </div>
+  <div class="panel">
+    <span class="tag">ANTES DE LA FASE 1</span>
+    <h2 style="margin-bottom:12px">Pendiente</h2>
+    <div class="checks" id="todo"></div>
+  </div>
+  <div class="panel">
+    <span class="tag">NO SE NEGOCIAN</span>
+    <h2 style="margin-bottom:12px">Reglas</h2>
+    <ul class="rules">
+      <li><span><b>.env</b> en el .gitignore desde el primer commit. El repo será público.</span></li>
+      <li><span>Ningún PDF de normativa en el repo. Las normas UNE no entran.</span></li>
+      <li><span>Todo en local con Ollama. El mismo cliente sirve contra Azure OpenAI.</span></li>
+      <li><span>Cada fase acaba en algo que funciona, con commit y README.</span></li>
+      <li><span>Registro de decisiones actualizado en cada fase.</span></li>
+      <li><span>Tú escribes el código; yo doy la estructura y reviso.</span></li>
+    </ul>
+  </div>
+</section>
+
+<footer>Plan basado en el briefing del proyecto · noviembre de 2026 · horas y tamaños de modelo orientativos.</footer>
+</div>
+
+<script>
+const PHASES = [
+  {id:"f0", name:"F0 · Repositorio", h:2, s:1, e:1, core:true,
+   goal:"Repositorio en GitHub, entorno conda con requirements.txt de versiones fijadas, .gitignore con .env, README inicial y docs/decisions.md.",
+   concepts:["Estructura de proyecto (src/ layout)","Entorno reproducible con versiones fijadas"],
+   errors:["No fijar versiones: torch y sentence-transformers rompen el entorno al actualizarse","Subir el .env o algún PDF en el primer commit"],
+   check:"Clonas el repo en otra carpeta, creas el entorno desde requirements.txt y arranca sin tocar nada.",
+   out:"Primer commit, sin secretos ni PDFs."},
+  {id:"f1", name:"F1 · RAG en Python puro", h:14, s:1, e:2, core:true,
+   goal:"Extracción con PyMuPDF, troceado por artículo, embeddings con sentence-transformers, Chroma embebido, prompt propio y llamada a Ollama con el cliente openai contra /v1.",
+   concepts:["Qué es un embedding y cómo se elige el modelo","Por qué similitud del coseno (una vez, a mano con NumPy)","Ventana del modelo de embeddings frente a tamaño del trozo","Por qué el troceado lo condiciona todo"],
+   errors:["Artículos largos que se truncan sin aviso al superar la ventana","Perder el número de artículo en los metadatos y no poder citar","Modelos tipo E5 que exigen los prefijos query: y passage:","Con 4 GB, meter demasiados trozos en el prompt"],
+   check:"Cinco preguntas cuya respuesta conoces, revisando a mano qué trozos se recuperaron, no solo la respuesta.",
+   out:"Script que responde citando el artículo, detrás de answer(question) -> Answer."},
+  {id:"f2", name:"F2 · Evaluación", h:8, s:3, e:3, core:true, key:true,
+   goal:"Golden set de 30-50 preguntas escritas por ti, con artículo correcto y respuesta esperada. Recuperación y generación se miden por separado.",
+   concepts:["hit rate@k, recall@k y MRR","faithfulness y answer correctness","LLM-as-a-judge calibrado contra tu juicio","Regression suite y preguntas sin respuesta («no consta»)"],
+   errors:["Mezclar recuperación y generación en una sola nota","Usar un modelo de 3-4B como juez sin calibrarlo contra tu criterio","Escribir las preguntas mirando los trozos recuperados"],
+   check:"La métrica cambia cuando rompes algo a propósito (k=1, troceado fijo). Si no se mueve, no está midiendo.",
+   out:"Script de evaluación y baseline v0 (Python puro) en el README."},
+  {id:"f2b", name:"F2B · Port a LangChain", h:6, s:4, e:4, core:true,
+   goal:"La misma tubería con Document, Embeddings, VectorStore/Retriever, PromptTemplate, ChatOllama y LCEL. Reutiliza tu chunking.py.",
+   concepts:["Runnables y LCEL (el operador |)","Qué función tuya sustituye cada abstracción","Cuándo SÍ y cuándo NO usar un framework"],
+   errors:["Prompt por defecto o k distintos que hacen injusta la comparación","Seguir un tutorial escrito para otra versión de LangChain"],
+   check:"Imprimes el prompt real que envía LangChain y lo comparas con el tuyo antes de evaluar.",
+   out:"Tabla Python puro vs LangChain en el README: métricas, líneas de código y dependencias."},
+  {id:"f3", name:"F3 · Docker", h:12, s:5, e:6, core:true,
+   goal:"Imagen frente a contenedor, Dockerfile, capas y caché, volúmenes, redes y docker compose. Postgres con pgvector en un segundo contenedor.",
+   concepts:["Por qué un contenedor y no instalar en la máquina","Qué se pierde al borrar un contenedor y qué no","Cómo se hablan dos contenedores","Por qué CUDA y torch complican las imágenes de IA"],
+   errors:["Imágenes de varios GB por torch con CUDA sin necesidad","Copiar el código antes de instalar dependencias y romper la caché","GPU en Windows: exige WSL2 y NVIDIA Container Toolkit (propuesta: Ollama en el host)"],
+   check:"Borras los contenedores, haces docker compose up y la evaluación da lo mismo que antes.",
+   out:"docker compose up y el sistema funciona entero."},
+  {id:"f4", name:"F4 · API e interfaz", h:8, s:7, e:7, core:true, last:true,
+   goal:"FastAPI con esquemas Pydantic (Answer pasa a ser un modelo Pydantic), documentación automática y Streamlit encima. Tercer servicio en el compose.",
+   concepts:["Por qué un esquema validado y no un diccionario","Modelos de petición y respuesta","Documentación OpenAPI automática en /docs"],
+   errors:["Devolver diccionarios sin modelo y perder la validación","Streamlit llamando a la lógica directamente en vez de a la API"],
+   check:"Mandas una petición mal formada y la API responde 422 explicando qué campo falla.",
+   out:"API documentada e interfaz utilizable. El proyecto ya es enseñable."},
+  {id:"f5", name:"F5 · Búsqueda híbrida", h:10, s:8, e:9,
+   goal:"Búsqueda léxica (BM25 o full-text de Postgres) más vectorial, re-ranking y filtros por metadatos en SQL.",
+   concepts:["Por qué la semántica falla con códigos y números de artículo","Fusión de rankings","Cuándo compensa el coste de un re-ranker"],
+   errors:["Declarar una mejora sin medirla contra la baseline","Un re-ranker en GPU compitiendo con el LLM por los 4 GB"],
+   check:"Preguntas con número de artículo o código: recall@k antes y después.",
+   out:"Medición contra la baseline. Si no mejora, se dice."},
+  {id:"f6", name:"F6 · Grafo", h:20, s:10, e:12,
+   goal:"La normativa como grafo en Neo4j: documento, sección, artículo y concepto; aristas contiene, referencia, modifica y aplica a.",
+   concepts:["Modelado de grafos y Cypher","Recuperación híbrida: el vector encuentra, el grafo arrastra","Por qué «relacionado» no es «parecido»"],
+   errors:["Modelar el grafo antes de saber qué pregunta resuelve","Extraer relaciones con el LLM sin verificarlas"],
+   check:"Preguntas sobre artículos modificados: ¿recupera ahora el artículo modificador que la búsqueda vectorial no encontraba?",
+   out:"Medición contra la baseline con una mejora concreta."},
+  {id:"f7", name:"F7 · Agentes", h:12, s:13, e:14,
+   goal:"Function calling a mano: definiciones de herramientas, petición estructurada, ejecución y resultado. Después, LangGraph.",
+   concepts:["El bucle de herramientas","Modos de fallo: argumentos mal formados, herramientas inventadas, bucles sin fin","Cadena determinista frente a agente"],
+   errors:["Fiarse del function calling de un modelo de 3-4B sin validar la salida","Dejar el bucle sin límite de iteraciones"],
+   check:"Casos con la herramienta correcta conocida: tasa de elección correcta y de JSON válido.",
+   out:"Un agente que decide entre normativa, grafo o respuesta directa."},
+  {id:"f8", name:"F8 · Airflow (opcional)", h:20, s:15, e:17, opt:true,
+   goal:"DAG de ingesta: extraer, trocear, generar embeddings y cargar. Reintentos, programación, relanzado por fechas e idempotencia.",
+   concepts:["Idempotencia y backfill","Reintentos y dependencias entre tareas","El vocabulario estándar de tu proceso nocturno"],
+   errors:["Tareas no idempotentes que duplican trozos al relanzar"],
+   check:"Relanzas un día ya procesado y el índice no cambia.",
+   out:"DAG de ingesta funcionando."}
+];
+
+const NODES = {
+  pdf:{lane:"ingest", py:"PDF del BOE", lc:"PDF del BOE", file:"data/raw/", ph:"F1",
+    what:"Texto de normativa de acceso libre. Empieza con un solo documento: REBT o reglamento de ICT.",
+    lcwhat:"Igual. LangChain no cambia la fuente.",
+    warn:"Nunca se sube al repo. Las normas UNE no entran en el corpus."},
+  extract:{lane:"ingest", py:"Extracción", lc:"PyMuPDFLoader", sub:"PyMuPDF", lcsub:"document_loaders", file:"src/rag/ingest.py", ph:"F1",
+    what:"Saca el texto página a página y limpia cabeceras, pies y números de página del BOE.",
+    lcwhat:"Devuelve una lista de Document con el texto y metadatos de página. Lo hace tu ingest.py.",
+    warn:"Cabeceras repetidas que se cuelan en cada trozo y ensucian los embeddings."},
+  chunk:{lane:"ingest", py:"Troceado por artículo", lc:"Tu chunking.py", sub:"regex sobre «Artículo N»", lcsub:"no se sustituye", file:"src/rag/chunking.py", ph:"F1",
+    what:"Corta respetando el articulado y guarda en metadatos documento, sección y número de artículo. Es lo que permite citar.",
+    lcwhat:"No se usa RecursiveCharacterTextSplitter: el port importa tu función para que la comparación sea justa.",
+    warn:"Artículos más largos que la ventana del modelo de embeddings: se truncan sin aviso."},
+  embed:{lane:"ingest", py:"Embeddings", lc:"HuggingFaceEmbeddings", sub:"sentence-transformers", lcsub:"embed_documents()", file:"src/rag/embeddings.py", ph:"F1",
+    what:"Convierte cada trozo en un vector. Modelo multilingüe pequeño o mediano: con 4 GB de GPU, incluso en CPU va bien.",
+    lcwhat:"Envuelve sentence-transformers. Ojo con si normaliza los vectores y con los prefijos.",
+    warn:"Modelos tipo E5 exigen «passage:» al indexar y «query:» al preguntar."},
+  store:{lane:"ingest", py:"Almacén vectorial", lc:"VectorStore (Chroma)", sub:"Chroma → pgvector en F3", lcsub:"from_documents()", file:"src/rag/store.py", ph:"F1",
+    what:"Guarda vectores, texto y metadatos. Chroma embebido para empezar; Postgres con pgvector en la Fase 3.",
+    lcwhat:"Crea el índice y lo expone como retriever. Esconde la métrica de distancia que usa por defecto.",
+    warn:"Mezclar métricas: si los vectores no están normalizados, L2 y coseno ordenan distinto."},
+  q:{lane:"query", py:"Pregunta", lc:"input", sub:"lenguaje natural", lcsub:"{question}", file:"src/rag/pipeline.py", ph:"F1",
+    what:"La pregunta del usuario entra por answer(question).",
+    lcwhat:"Entra como diccionario en la cadena LCEL.",
+    warn:"Preguntas con números de artículo o códigos: la búsqueda semántica sola falla (se arregla en F5)."},
+  qembed:{lane:"query", py:"Embedding de la pregunta", lc:"embed_query()", sub:"mismo modelo", lcsub:"Embeddings", file:"src/rag/embeddings.py", ph:"F1",
+    what:"La pregunta se convierte en vector con el mismo modelo que los trozos.",
+    lcwhat:"El retriever lo llama por dentro.",
+    warn:"Usar un modelo distinto al de la ingesta: los vectores no son comparables."},
+  search:{lane:"query", py:"Búsqueda top-k", lc:"Retriever", sub:"similitud del coseno", lcsub:"as_retriever(k=…)", file:"src/rag/store.py", ph:"F1",
+    what:"Devuelve los k trozos más parecidos con sus metadatos. Haz una vez la versión a mano con NumPy.",
+    lcwhat:"Su k por defecto puede no ser el tuyo. Fíjalo para comparar.",
+    warn:"Un k grande no sale gratis con 4 GB: cada trozo ocupa contexto y memoria."},
+  prompt:{lane:"query", py:"Montaje del prompt", lc:"PromptTemplate", sub:"función propia", lcsub:"ChatPromptTemplate", file:"src/rag/generate.py", ph:"F1",
+    what:"Instrucciones, trozos con su número de artículo y la pregunta. Obliga a citar y a decir «no consta» si no está.",
+    lcwhat:"Plantilla con variables. Imprime el prompt final que envía: es lo que más se esconde.",
+    warn:"No imprimir nunca el prompt real y depurar a ciegas."},
+  llm:{lane:"query", py:"LLM local", lc:"ChatOllama", sub:"Ollama · Qwen 3-4B", lcsub:"langchain-ollama", file:"src/rag/generate.py", ph:"F1",
+    what:"Cliente openai contra el endpoint /v1 de Ollama. El mismo código sirve con Azure OpenAI cambiando la URL base.",
+    lcwhat:"Integración específica de Ollama. Pierdes la portabilidad directa a Azure si no usas su cliente OpenAI.",
+    warn:"Un 7B en Q4 no cabe entero en 4 GB: Ollama reparte con CPU y va lento."},
+  answer:{lane:"query", py:"Respuesta con cita", lc:"Output parser", sub:"Answer(texto, citas, ids)", lcsub:"StrOutputParser", file:"src/rag/pipeline.py", ph:"F1",
+    what:"Devuelve texto, artículos citados e ids recuperados. Esa interfaz es la que mide la evaluación.",
+    lcwhat:"Tu interfaz answer() envuelve la cadena para que el evaluador no note la diferencia.",
+    warn:"Citas que no están entre los trozos recuperados: es alucinación, detéctala."},
+  eval:{lane:"eval", py:"Evaluación · golden set", lc:"Evaluación · mismo script", sub:"eval/run_eval.py · recuperación y generación por separado", lcsub:"run_eval.py --pipeline langchain", file:"eval/run_eval.py", ph:"F2",
+    what:"Mide si se recupera el artículo correcto (hit rate@k, recall@k, MRR) y si la respuesta dice lo que dice ese artículo (faithfulness).",
+    lcwhat:"El mismo script evalúa las dos versiones: así la comparación sale con números.",
+    warn:"Sin esta pieza, todas las mejoras de F5 y F6 son fe."}
+};
+const INGEST = ["pdf","extract","chunk","embed","store"];
+const QUERY = ["q","qembed","search","prompt","llm","answer"];
+
+const TIPS = [
+  "¿Cómo sabrías que funciona? Esa pregunta va al final de cada pieza.",
+  "El troceado lo condiciona todo. No lo delegues.",
+  "Sin evaluación, las mejoras son fe.",
+  ".env en el .gitignore desde el commit uno.",
+  "Nada de PDFs UNE en el repo.",
+  "4 GB de GPU: Qwen de 3-4B cuantizado.",
+  "Imprime el prompt real. Siempre.",
+  "¿Cuándo NO usarías una base vectorial?",
+  "Fija versiones en requirements.txt.",
+  "Cuenta el proyecto en 90 segundos: qué hiciste, qué falló y cómo lo arreglaste.",
+  "Cada fase acaba en un commit que funciona."
+];
+
+const NOS = [
+  ["¿Cuándo NO hace falta una base vectorial?","Con unos miles de trozos caben en memoria: NumPy y coseno bastan. Tampoco si la búsqueda léxica ya resuelve, como con códigos o números de artículo."],
+  ["¿Cuándo NO usar LangChain?","En una tubería corta y estable donde necesitas controlar el prompt exacto y depurar paso a paso. El framework añade dependencias y su API cambia a menudo."],
+  ["¿Cuándo NO montar un agente?","Cuando el flujo es siempre el mismo. Una cadena determinista es más barata, más predecible y más fácil de evaluar."],
+  ["¿Cuándo NO usar un contenedor?","En un script personal de un solo uso, sin dependencias delicadas y que nadie más va a desplegar."],
+  ["¿Cuándo NO añadir re-ranking?","Cuando el recall@k ya es alto, o cuando mandan la latencia o la memoria de la GPU."],
+  ["¿Cuándo NO usar un grafo?","Cuando los documentos no se referencian ni se modifican entre sí: la estructura no aporta nada que la búsqueda no encuentre."]
+];
+
+const TODO = [
+  ["gpu","Ejecutar nvidia-smi y apuntar modelo, VRAM libre y versión de CUDA"],
+  ["corpus","Elegir el corpus inicial: REBT con sus ITC-BT, o reglamento de ICT"],
+  ["emb","Elegir 2-3 modelos de embeddings multilingües candidatos"],
+  ["repo","Crear el repositorio (Fase 0)"]
+];
+
+/* Estado guardado en este navegador */
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem("ragplan:"+k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem("ragplan:"+k, JSON.stringify(v)); }catch(e){} }
+};
+let status = store.get("status", {});
+let checks = store.get("checks", {});
+let view = "py";
+let selNode = "chunk";
+let selPhase = "f1";
+let sound = true;
+
+/* Robot y sonido */
+const robot = document.getElementById("robot");
+const bubble = document.getElementById("bubble");
+let actx = null;
+function beep(freqs){
+  if(!sound) return;
+  try{
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    let t = actx.currentTime;
+    (freqs || [880, 1320]).forEach(f => {
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = "square"; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.08, t + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+      o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + 0.1); t += 0.11;
+    });
+  }catch(e){}
+}
+function say(text, freqs, noSound){
+  bubble.innerHTML = '<span class="beep">BEEP</span>' + text;
+  robot.classList.remove("beeping"); void robot.getBoundingClientRect(); robot.classList.add("beeping");
+  if(!noSound) beep(freqs);
+}
+let tipI = 0;
+function nextTip(){ say(TIPS[tipI % TIPS.length]); tipI++; }
+robot.addEventListener("click", nextTip);
+robot.addEventListener("keydown", e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); nextTip(); } });
+robot.addEventListener("animationend", e => { if(e.animationName === "shake") robot.classList.remove("beeping"); });
+document.getElementById("soundBtn").addEventListener("click", e => {
+  sound = !sound; e.currentTarget.setAttribute("aria-pressed", sound); e.currentTarget.textContent = "Sonido: " + (sound ? "sí" : "no");
+});
+setInterval(() => { if(!document.hidden && !simRunning){ say(TIPS[tipI % TIPS.length], null, true); tipI++; } }, 12000);
+
+/* Esquema RAG */
+function nodeHTML(id){
+  const n = NODES[id];
+  const title = view === "py" ? n.py : n.lc;
+  const sub = view === "py" ? (n.sub || n.file) : (n.lcsub || n.sub || n.file);
+  return `<button class="node${selNode === id ? " sel" : ""}" type="button" data-node="${id}" id="n-${id}">
+    <span class="ph">${n.ph}</span><span class="nt">${title}</span><span class="ns">${sub}</span></button>`;
+}
+function renderRag(){
+  document.getElementById("laneIngest").innerHTML = INGEST.map(nodeHTML).join('<div class="arrow" aria-hidden="true"></div>');
+  document.getElementById("laneQuery").innerHTML = QUERY.map(nodeHTML).join('<div class="arrow" aria-hidden="true"></div>');
+  const ev = document.getElementById("evalNode"), n = NODES.eval;
+  ev.className = "node eval-node" + (selNode === "eval" ? " sel" : "");
+  ev.innerHTML = `<span class="ph">${n.ph}</span><span class="nt">${view === "py" ? n.py : n.lc}</span><span class="ns">${view === "py" ? n.sub : n.lcsub}</span>`;
+  renderDetail();
+}
+function renderDetail(){
+  const n = NODES[selNode];
+  document.getElementById("detail").innerHTML = `
+    <span class="tag">${n.ph} · ${view === "py" ? "PYTHON PURO" : "LANGCHAIN (F2B)"}</span>
+    <h3>${view === "py" ? n.py : n.lc}</h3>
+    <div class="row"><span class="lbl">Qué hace</span><p>${view === "py" ? n.what : n.lcwhat}</p></div>
+    <div class="row"><span class="lbl">Dónde vive</span><p><code>${n.file}</code></p></div>
+    ${view === "lc" ? `<div class="row"><span class="lbl">En Python puro era</span><p>${n.py}</p></div>` : ""}
+    <div class="warn"><b>Error típico:</b> ${n.warn}</div>`;
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-node]");
+  if(b){ selNode = b.dataset.node; renderRag(); document.getElementById("n-" + selNode)?.focus({preventScroll:true}); if(window.innerWidth <= 900) document.getElementById("detail").scrollIntoView({behavior:"smooth", block:"nearest"}); }
+});
+document.querySelectorAll(".seg [data-view]").forEach(b => b.addEventListener("click", () => {
+  view = b.dataset.view;
+  document.querySelectorAll(".seg [data-view]").forEach(x => x.setAttribute("aria-pressed", x === b));
+  renderRag();
+  say(view === "lc" ? "Vista LangChain: cada caja muestra la abstracción que sustituye a tu función." : "Vista Python puro: aquí todo lo escribes tú.", [660, 990]);
+}));
+
+/* Simulación de una consulta */
+let simRunning = false;
+const SIM = [
+  ["q","Entra la pregunta por answer(question)."],
+  ["qembed","La convierto en vector con el mismo modelo que los trozos."],
+  ["search","Busco los k artículos más parecidos en el almacén."],
+  ["prompt","Monto el prompt con los trozos y su número de artículo."],
+  ["llm","Qwen genera la respuesta en local, sin enviar nada fuera."],
+  ["answer","Devuelvo la respuesta citando el artículo. ¿Cómo sabrías que es correcta? Con la evaluación."]
+];
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+document.getElementById("simBtn").addEventListener("click", async () => {
+  if(simRunning) return; simRunning = true;
+  const btn = document.getElementById("simBtn"); btn.disabled = true; btn.textContent = "Simulando…";
+  document.getElementById("laneQuery").scrollIntoView({behavior:"smooth", block:"center"});
+  await sleep(400);
+  for(let i = 0; i < SIM.length; i++){
+    const [id, txt] = SIM[i];
+    document.querySelectorAll(".node.hot").forEach(x => x.classList.remove("hot"));
+    document.getElementById("n-" + id)?.classList.add("hot");
+    if(id === "search") document.getElementById("n-store")?.classList.add("hot");
+    selNode = id; renderDetail();
+    say(`<span class="mono">${i + 1}/6</span> · ${txt}`, [600 + i * 120, 900 + i * 120]);
+    await sleep(1700);
+  }
+  document.querySelectorAll(".node.hot").forEach(x => x.classList.remove("hot"));
+  renderRag();
+  btn.disabled = false; btn.textContent = "Simular consulta"; simRunning = false;
+});
+
+/* Fases */
+function st(id){ return status[id] || "todo"; }
+function renderGantt(){
+  const weeks = Array.from({length:17}, (_, i) => `<span>${i + 1}</span>`).join("");
+  let html = `<div class="g-row g-head"><span class="tag">FASE</span><span class="tag" style="text-align:right">H</span><div class="weeks">${weeks}</div></div>`;
+  PHASES.forEach(p => {
+    const s = st(p.id);
+    const cls = ["bar", p.core ? "" : "ext", p.opt ? "opt" : "", s !== "todo" ? s : "", selPhase === p.id ? "sel" : ""].join(" ");
+    html += `<div class="g-row${p.last ? " core-end" : ""}">
+      <button class="g-name" type="button" data-phase="${p.id}" style="${p.key ? "font-weight:700" : ""}"><i class="dot ${s}"></i>${p.name}</button>
+      <span class="g-h">${p.h} h</span>
+      <div class="track"><button class="${cls}" type="button" data-phase="${p.id}" aria-label="${p.name}, semanas ${p.s} a ${p.e}" style="grid-column:${p.s} / ${p.e + 1}"></button></div>
+    </div>`;
+  });
+  document.getElementById("gantt").innerHTML = html;
+  renderPhase(); renderProgress();
+}
+function renderPhase(){
+  const p = PHASES.find(x => x.id === selPhase), s = st(p.id);
+  const weeks = p.s === p.e ? `semana ${p.s}` : `semanas ${p.s}-${p.e}`;
+  document.getElementById("phaseDetail").innerHTML = `
+    <div class="pd-top">
+      <div><h3 style="font-size:20px">${p.name}</h3><span class="meta">${p.h} h · ${weeks} · ${p.core ? "núcleo" : (p.opt ? "opcional" : "extensión")}</span></div>
+      <div class="seg status-seg" role="group" aria-label="Estado de la fase">
+        <button type="button" data-s="todo" aria-pressed="${s === "todo"}">Pendiente</button>
+        <button type="button" data-s="doing" aria-pressed="${s === "doing"}">En curso</button>
+        <button type="button" data-s="done" aria-pressed="${s === "done"}">Hecha</button>
+      </div>
+    </div>
+    <p style="max-width:75ch">${p.goal}</p>
+    <div class="pd-grid">
+      <div class="box"><h4>Conceptos que tienes que poder explicar</h4><ul>${p.concepts.map(c => `<li>${c}</li>`).join("")}</ul></div>
+      <div class="box warn"><h4>Errores típicos (aviso previo)</h4><ul>${p.errors.map(c => `<li>${c}</li>`).join("")}</ul></div>
+      <div class="box"><h4>¿Cómo sabrías que funciona?</h4><p>${p.check}</p></div>
+      <div class="box ok"><h4>Entregable</h4><p>${p.out}</p></div>
+    </div>`;
+  document.querySelectorAll(".status-seg [data-s]").forEach(b => b.addEventListener("click", () => {
+    status[p.id] = b.dataset.s; store.set("status", status); renderGantt();
+    if(b.dataset.s === "done") say(`¡${p.name} hecha! Commit, README y una entrada en el registro de decisiones.`, [880, 1175, 1568]);
+    else if(b.dataset.s === "doing") say(`Empezamos ${p.name}. Primero el concepto, luego el código.`, [700, 1050]);
+  }));
+}
+function renderProgress(){
+  const total = PHASES.reduce((a, p) => a + p.h, 0);
+  const done = PHASES.filter(p => st(p.id) === "done").reduce((a, p) => a + p.h, 0);
+  const pct = Math.round(done / total * 100);
+  document.getElementById("progV").textContent = pct + " %";
+  document.getElementById("progN").textContent = `${done} de ${total} h hechas`;
+  document.getElementById("progBar").style.width = pct + "%";
+}
+document.getElementById("gantt").addEventListener("click", e => {
+  const b = e.target.closest("[data-phase]"); if(!b) return;
+  selPhase = b.dataset.phase; renderGantt();
+  document.getElementById("phaseDetail").scrollIntoView({behavior:"smooth", block:"nearest"});
+});
+
+/* Cuándo NO */
+document.getElementById("cards").innerHTML = NOS.map(([q, a], i) => `
+  <button class="card" type="button" aria-label="${q} Pulsa para ver la respuesta">
+    <div class="card-in">
+      <div class="face front"><b>${q}</b><span class="hint">Pulsa para girar</span></div>
+      <div class="face back"><p>${a}</p><span class="hint">Pulsa para volver</span></div>
+    </div>
+  </button>`).join("");
+document.querySelectorAll(".card").forEach(c => c.addEventListener("click", () => { c.classList.toggle("flip"); if(c.classList.contains("flip")) beep([520, 780]); }));
+
+/* Pendientes */
+function renderTodo(){
+  document.getElementById("todo").innerHTML = TODO.map(([id, t]) => `
+    <label for="chk-${id}"><input type="checkbox" id="chk-${id}" data-chk="${id}" ${checks[id] ? "checked" : ""}><span>${t}</span></label>`).join("");
+  document.querySelectorAll("[data-chk]").forEach(c => c.addEventListener("change", () => {
+    checks[c.dataset.chk] = c.checked; store.set("checks", checks);
+    if(c.checked){
+      const left = TODO.filter(([id]) => !checks[id]).length;
+      say(left ? `Hecho. Quedan ${left} antes de la Fase 1.` : "Todo listo. ¡A por la Fase 1!", [880, 1320]);
+    }
+  }));
+}
+
+renderRag(); renderGantt(); renderTodo();
+</script>
+</body>
+</html>
