@@ -17,7 +17,26 @@ Query: question → query embedding → top-k similarity search → prompt assem
 
 ## How to run
 
-_To be added in Phase 1. Target from Phase 3 onwards: a single `docker compose up`._
+_The full pipeline will be added in Phase 1. Target from Phase 3 onwards: a single `docker compose up`._
+
+### Development setup
+
+Requires Git and Miniconda (or any Python 3.12 installation).
+
+```bash
+conda create -n rag-normainst python=3.12
+conda activate rag-normainst
+python -m pip install -e .
+cp .env.example .env    # Windows: copy .env.example .env
+```
+
+Check that the package is installed in the active environment:
+
+```bash
+python -c "import rag_normainst; print(rag_normainst.__file__)"
+```
+
+The printed path should point to `src/rag_normainst/__init__.py` inside this repository.
 
 ## Evaluation results
 

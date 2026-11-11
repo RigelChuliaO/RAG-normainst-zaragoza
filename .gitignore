@@ -2,7 +2,8 @@
 .env
 
 # Regulation PDFs and generated indexes (never committed)
-data/raw/
+data/raw/*
+!data/raw/.gitkeep
 chroma/
 *.sqlite3
 

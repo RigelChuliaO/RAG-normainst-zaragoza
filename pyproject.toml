@@ -1,0 +1,21 @@
+# pyproject.toml: la declaracion unica del proyecto.
+# pip lo lee para saber como construirlo e instalarlo (en local y, en la Fase 3, en Docker).
+
+[build-system]
+# Que herramienta convierte esta carpeta en un paquete instalable.
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+# Nombre de DISTRIBUCION (lo que verias en "pip list"). Puede llevar guiones.
+# El nombre de IMPORTACION es la carpeta src/rag_normainst (guion bajo).
+name = "rag-normainst"
+version = "0.1.0"
+description = "Local RAG assistant over Spanish technical installation regulations that answers citing the exact article."
+readme = "README.md"
+# Minimo de Python. Debe coincidir con el entorno conda y con la imagen Docker de la Fase 3.
+requires-python = ">=3.12"
+# Dependencias de ejecucion. Vacio por ahora; en la Fase 1 entran pymupdf, chromadb, etc.
+dependencies = []
+
+# Con src layout, setuptools encuentra solo el paquete dentro de src/. No hace falta configurar nada mas.
