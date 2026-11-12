@@ -1,5 +1,7 @@
 # Decision log
 
+**English** · [Español](decisions.es.md)
+
 One entry per decision: context, options considered, decision, and how we will know if it was wrong. Newest first.
 
 ---
