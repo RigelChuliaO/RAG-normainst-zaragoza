@@ -4,6 +4,7 @@
 # Regulation PDFs and generated indexes (never committed)
 data/raw/*
 data/interim/
+data/processed/
 !data/raw/.gitkeep
 chroma/
 *.sqlite3

@@ -361,7 +361,7 @@ footer{color:var(--muted); font-size:13px}
 ├── README.md        <span class="c"># en inglés, con resultados</span>
 ├── pyproject.toml   <span class="c"># dependencias (+ grupo dev)</span>
 ├── .env.example
-├── .gitignore       <span class="c"># .env, data/raw/*, data/interim/</span>
+├── .gitignore       <span class="c"># .env, data/raw/*, data/interim/, data/processed/</span>
 ├── docs/
 │   ├── plan.md      <span class="c"># fuente de las tareas</span>
 │   ├── decisions.md
@@ -375,7 +375,7 @@ footer{color:var(--muted); font-size:13px}
 │   ├── ingest/
 │   │   ├── extract.py            <span class="c"># ✅</span>
 │   │   ├── inspect_extraction.py <span class="c"># ✅</span>
-│   │   └── chunk.py  <span class="c"># lo reutiliza la F2B</span>
+│   │   └── chunk.py  <span class="c"># ✅ lo reutiliza la F2B</span>
 │   ├── embeddings.py
 │   ├── store.py
 │   ├── generate.py
@@ -386,7 +386,8 @@ footer{color:var(--muted); font-size:13px}
 │   ├── run_eval.py  <span class="c"># --pipeline pure|langchain</span>
 │   └── results/
 └── tests/
-    └── test_extract.py <span class="c"># ✅ 12 pruebas</span></pre>
+    ├── test_extract.py <span class="c"># ✅ 12 pruebas</span>
+    └── test_chunk.py   <span class="c"># ✅ 16 pruebas</span></pre>
   </div>
   <div class="panel">
     <span class="tag">DECISIONES</span>
@@ -404,6 +405,7 @@ footer{color:var(--muted); font-size:13px}
       <li><span>Registro de decisiones actualizado en cada fase.</span></li>
       <li><span>Tú escribes el código; si me pides que lo escriba yo, después me lo explicas.</span></li>
       <li><span>Comentarios en español, también en el código.</span></li>
+      <li><span>Mensajes de commit en español.</span></li>
     </ul>
   </div>
 </section>
@@ -454,13 +456,13 @@ const PHASES = [
      ["Ejercicio de mutation testing: borrar «Artículo 23.» del .lines.jsonl y ver fallar el test", true, 0.25],
      ["Explicar con tus palabras: bold_ratio, el error de split_front_matter, el sha256", true, 0.5],
      ["Anotar en decisions.md: corpus y versión, apéndices como imagen, notas de modificación ausentes", true, 0.25],
-     ["Commit de la pieza 1 (ingest/, tests/, pyproject.toml, plan.md, dashboard)", false, 0.25]]},
+     ["Commit de la pieza 1 (c30e6b6, subido a main)", true, 0.25]]},
     {g:"Pieza 2 · Chunking por estructura", items:[
-     ["Diseño: unidad de chunk, ruta de ancestros como prefijo, tablas pegadas a su sección", false, 0.5],
-     ["ingest/chunk.py → data/processed/chunks.jsonl (id, doc, path, title, page_start, text)", false, 1.25],
-     ["Detectar referencias cruzadas («artículo 18», «IT 1.2.4») y guardarlas en refs", false, 0.5],
-     ["Tests del chunker: ningún chunk sin cuerpo, todos los artículos e IT presentes", false, 0.5],
-     ["Inspeccionar a mano una muestra de chunks (corto, largo, con tabla)", false, 0.25]]},
+     ["Diseño: unidad de chunk, ruta de ancestros como prefijo, tablas pegadas a su sección", true, 0.5],
+     ["ingest/chunk.py → data/processed/chunks.jsonl (id, doc, path, title, page_start, text)", true, 1.25],
+     ["Detectar referencias cruzadas («artículo 18», «IT 1.2.4») y guardarlas en refs", true, 0.5],
+     ["Tests del chunker: ningún chunk sin cuerpo, todos los artículos e IT presentes", true, 0.5],
+     ["Inspeccionar a mano una muestra de chunks (corto, largo, con tabla)", true, 0.25]]},
     {g:"Pieza 3 · Embeddings e índice", items:[
      ["nvidia-smi: modelo de GPU, VRAM libre y versión de CUDA", false, 0.1],
      ["Concepto: qué es un embedding, cómo se elige el modelo, prefijos query:/passage: de E5", false, 0.5],

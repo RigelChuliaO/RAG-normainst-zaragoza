@@ -6,7 +6,7 @@
 
 > Si retomas el proyecto en una conversación nueva, empieza por aquí.
 
-**Fase actual:** **Fase 1**, pieza 1 (extracción) casi cerrada. Falta el commit; después empieza la pieza 2 (chunking).
+**Fase actual:** **Fase 1**. Pieza 1 (extracción) cerrada en `c30e6b6`. Pieza 2 (chunking): `chunk.py` hecho, revisado y con 16 pruebas (ADR-005); falta el commit. Después, pieza 3 (embeddings).
 
 **Siguiente tarea:** la primera casilla sin marcar de la Fase 1, en [Tareas por fase](#tareas-por-fase).
 
@@ -17,7 +17,7 @@ Leyenda: ✅ terminada · 🔄 en curso · ⬜ sin empezar. En las listas, `[x]`
 | Fase | Estado | Tareas hechas | Horas (estimadas) |
 | --- | --- | --- | --- |
 | F0 · Repositorio y esqueleto | ✅ | 9 / 9 | 2 / 2 h |
-| F1 · RAG mínimo en Python puro | 🔄 | 12 / 31 | 5,1 / 14 h |
+| F1 · RAG mínimo en Python puro | 🔄 | 18 / 31 | 8,35 / 14 h |
 | F2 · Evaluación | ⬜ | 0 / 10 | 0 / 8 h |
 | F2B · Port a LangChain | ⬜ | 0 / 6 | 0 / 6 h |
 | F3 · Docker | ⬜ | 0 / 11 | 0 / 12 h |
@@ -26,7 +26,7 @@ Leyenda: ✅ terminada · 🔄 en curso · ⬜ sin empezar. En las listas, `[x]`
 | F6 · Grafo de conocimiento | ⬜ | 0 / 8 | 0 / 20 h |
 | F7 · Function calling y agentes | ⬜ | 0 / 7 | 0 / 12 h |
 | F8 · Airflow (opcional) | ⬜ | 0 / 6 | 0 / 20 h |
-| **Total** | | **21 / 102** | **7,1 / 112 h** |
+| **Total** | | **27 / 102** | **10,35 / 112 h** |
 
 **Cómo se trabaja en local (para no repetir errores ya cometidos):**
 
@@ -76,6 +76,7 @@ Cifras aproximadas, a confirmar en tu máquina:
 - **Cada fase termina en algo que funciona,** con commit y README actualizado (en inglés).
 - **Registro de decisiones** (`docs/decisions.md`) actualizado en cada fase con el porqué de cada elección.
 - **Comentarios en español,** también los del código (comentarios, docstrings y mensajes). Los nombres de funciones y variables, en inglés.
+- **Mensajes de commit en español** (desde la Fase 1; los de la Fase 0 quedaron en inglés).
 
 **Cómo trabajaremos en cada pieza:**
 
@@ -106,7 +107,7 @@ Extracción con PyMuPDF, troceado por artículo, embeddings con `sentence-transf
 - **Cómo sabrías que funciona:** 5 preguntas cuya respuesta conoces, revisando a mano qué trozos se recuperaron, no solo la respuesta.
 - **Entregable:** script que responde citando el artículo, detrás de `answer(question) -> Answer`.
 
-**Hallazgos de la pieza 1 (extracción), comprobados sobre el PDF real:**
+**Hallazgos de la pieza 1 (extracción), comprobados sobre el PDF real** (detalle y limitaciones en el ADR-004):
 
 - 97 páginas; el cuerpo va de la página 5 a la 96. 5205 líneas tras quitar cabecera, pie, portada, índice y el aviso legal final.
 - Artículos y disposiciones: número en negrita + título en cursiva. Encabezados IT **sin negrita** y con la sangría de un párrafo: se detectan por regex, no por formato. Errata en el propio PDF: "IT 1.2. 4.7".
@@ -183,15 +184,15 @@ Se marcan con `[x]` al terminarlas, y se actualiza la tabla de [Progreso](#progr
 - [x] Ejercicio de *mutation testing*: borrar "Artículo 23." del `.lines.jsonl` y ver fallar el test. · *0,25 h*
 - [x] Explicar con tus palabras: `bold_ratio`, el error de `split_front_matter`, el `sha256` (reducido a los principios transferibles: la ingesta condiciona la calidad, la estructura tiene que llegar a los metadatos para citar, fail fast y versionado de datos). · *0,5 h*
 - [x] Anotar en `decisions.md`: corpus y versión, apéndices como imagen, notas de modificación ausentes (ADR-004). · *0,25 h*
-- [ ] Commit de la pieza 1 (`ingest/`, `tests/`, `pyproject.toml`, `plan.md`). · *0,25 h*
+- [x] Commit de la pieza 1 (`ingest/`, `tests/`, `pyproject.toml`, `plan.md`): `c30e6b6`. · *0,25 h*
 
 **Pieza 2 — Chunking por estructura**
 
-- [ ] Diseño: unidad de chunk (artículo, disposición, subsección IT más profunda), ruta de ancestros como prefijo, tablas pegadas a su sección. · *0,5 h*
-- [ ] `ingest/chunk.py` → `data/processed/chunks.jsonl` con `id`, `doc`, `path`, `title`, `page_start`, `text`. · *1,25 h*
-- [ ] Detectar referencias cruzadas ("artículo 18", "IT 1.2.4") y guardarlas en `refs`. · *0,5 h*
-- [ ] Tests del chunker: ningún chunk sin cuerpo, todos los artículos e IT presentes, ninguno partido entre dos unidades. · *0,5 h*
-- [ ] Inspeccionar a mano una muestra de chunks (uno corto, uno largo, uno con tabla). · *0,25 h*
+- [x] Diseño: unidad de chunk (artículo, disposición, subsección IT más profunda), ruta de ancestros como prefijo, tablas pegadas a su sección. · *0,5 h*
+- [x] `ingest/chunk.py` → `data/processed/chunks.jsonl` con `id`, `doc`, `path`, `title`, `page_start`, `text`. · *1,25 h*
+- [x] Detectar referencias cruzadas ("artículo 18", "IT 1.2.4") y guardarlas en `refs`. · *0,5 h*
+- [x] Tests del chunker (`tests/test_chunk.py`, 16 pruebas): ningún chunk sin cuerpo, todos los artículos e IT presentes, ninguno partido entre dos unidades. · *0,5 h*
+- [x] Inspeccionar a mano una muestra de chunks (uno corto, uno largo, uno con tabla). · *0,25 h*
 
 **Pieza 3 — Embeddings e índice**
 
@@ -328,7 +329,7 @@ RAG/
 ├── LICENSE                  # MIT
 ├── pyproject.toml           # metadatos y dependencias del paquete (pytest en el grupo dev)
 ├── .env.example             # variables sin valores reales
-├── .gitignore               # .env, data/raw/*, data/interim/, índices
+├── .gitignore               # .env, data/raw/*, data/interim/, data/processed/, índices
 ├── .gitattributes           # finales de línea LF
 ├── docs/
 │   ├── plan.md              # este plan
@@ -338,7 +339,7 @@ RAG/
 ├── data/
 │   ├── raw/                 # PDFs, fuera de git (solo .gitkeep)
 │   ├── interim/             # salidas intermedias (líneas extraídas, inspector), fuera de git
-│   ├── processed/           # chunks listos para indexar
+│   ├── processed/           # chunks listos para indexar, fuera de git
 │   └── sample/              # muestra pequeña de texto del BOE
 ├── src/rag_normainst/       # línea principal, Python puro (Fase 1)
 │   ├── __init__.py          # vacío; sin imports pesados
@@ -346,7 +347,7 @@ RAG/
 │   ├── ingest/
 │   │   ├── extract.py             # ✅ PDF → líneas limpias con formato
 │   │   ├── inspect_extraction.py  # ✅ inspector visual PDF frente a lo extraído
-│   │   └── chunk.py               # troceado por estructura (lo reutiliza la 2B)
+│   │   └── chunk.py               # ✅ troceado por estructura (lo reutiliza la 2B)
 │   ├── embeddings.py
 │   ├── store.py
 │   ├── generate.py
@@ -358,7 +359,8 @@ RAG/
 │   ├── run_eval.py          # --pipeline pure | langchain
 │   └── results/             # una ejecución por fichero, con fecha
 └── tests/
-    └── test_extract.py      # ✅ 12 pruebas del extractor
+    ├── test_extract.py      # ✅ 12 pruebas del extractor
+    └── test_chunk.py        # ✅ 16 pruebas del chunker
 ```
 
 El port a LangChain importa el chunking de `src/rag_normainst/ingest/chunk.py` en vez de usar un splitter propio del framework. Así la comparación mide lo que cambia el framework, no un troceado distinto.

@@ -8,6 +8,37 @@ Una entrada por decisión: contexto, opciones consideradas, decisión y cómo sa
 
 ---
 
+## ADR-005 · Chunking por estructura del RITE
+
+**Fecha:** 2026-11-13 · **Estado:** aceptada
+
+**Contexto.** El chunk es la unidad que se convierte en vector, se recupera, lee el LLM y se cita. El RITE tiene 228 unidades con encabezado: mediana de 110 palabras, 32 por encima de unas 400 (más de lo que cabe en 512 tokens), 34 encabezados sin texto propio y varias unidades con tablas.
+
+**Opciones.** Tamaño fijo con solapamiento; recursivo por separadores; *semantic chunking*; por estructura; jerárquico (*parent-child*).
+
+**Decisión.** Chunking por estructura (`ingest/chunk.py`):
+- Un chunk por artículo, disposición, sección IT con texto propio y definición del Apéndice 1; uno por apéndice para el resto.
+- Los encabezados sin texto propio (Parte, Capítulo, IT padres) solo aportan su título a la ruta de sus hijos.
+- Las unidades largas se parten por sus apartados numerados ("1.", "2.") y, si no basta, por párrafos, hasta un **límite provisional de 300 palabras**. Cada trozo lleva un id propio (`#1`, `#2`) y la ruta completa. Nunca se juntan unidades distintas.
+- Las tablas van dentro de su sección (`has_table`).
+- Cada chunk guarda `text` (el cuerpo, para el prompt) y `embed_text` (ruta de títulos + cuerpo, para el embedding).
+- Ids deterministas y legibles: `RITE:art-2`, `RITE:IT-1.1.4.1.2`, `RITE:AP1:aire-de-expulsion`.
+
+**Por qué.** Es la unidad que usa el propio reglamento y la que se cita: un chunk = una unidad de sentido = una cita. El prefijo de ruta da contexto a las 42 unidades muy cortas sin duplicar contenido, como haría un solapamiento. Los ids estables hacen posible el golden set de la Fase 2.
+
+**Resultado.** 389 chunks (mediana de 99 palabras, máximo 300); 49 unidades partidas en trozos; 106 definiciones (más la introducción del apéndice); 25 chunks con tabla. Los 47 artículos y las 130 secciones IT hoja tienen su chunk. Se conserva todo el texto de cuerpo (49 780 palabras en las unidades = en los chunks), y dos ejecuciones producen el mismo fichero. Señales de maquetación usadas: un párrafo nuevo va sangrado (x0 ≈ 107,7) y una línea de continuación no (x0 ≈ 90,7), lo que además permite unir los títulos que ocupan dos líneas.
+
+**Consecuencias y limitaciones conocidas.**
+- El límite está en palabras; en la pieza 3 de la Fase 1 se medirá en tokens del modelo de embeddings real y se ajustará.
+- El prefijo de ruta es largo en las IT profundas (unas 40 palabras): ocupa una parte apreciable de la ventana. Si perjudica, se dejan solo los últimos niveles.
+- Las tablas son texto plano con una celda por línea: un LLM puede leerlas, pero una pregunta sobre un valor concreto puede no recuperarlas bien.
+- Si un apartado numerado supera el límite, una lista ("a), b)…") puede quedar separada de su frase de introducción.
+- Las referencias cruzadas (`refs`) se detectan con patrones aproximados, solo dentro del Reglamento. No se usan hasta la Fase 6.
+
+**Cómo sabremos si era un error.** Si en la Fase 2 falla la recuperación en preguntas cuya respuesta necesita el contexto del padre o de secciones vecinas, se prueba el chunking jerárquico. Si fallan las preguntas sobre valores de tablas, se reconstruyen las tablas como filas de texto ("Verano: temperatura operativa 23…25 °C, humedad relativa 45…60 %").
+
+---
+
 ## ADR-004 · Corpus e ingesta del PDF: RITE y extracción que conserva la estructura
 
 **Fecha:** 2026-11-13 · **Estado:** aceptada

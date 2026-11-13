@@ -6,6 +6,37 @@ One entry per decision: context, options considered, decision, and how we will k
 
 ---
 
+## ADR-005 · Structure-aware chunking of the RITE
+
+**Date:** 2026-11-13 · **Status:** accepted
+
+**Context.** The chunk is the unit that becomes a vector, is retrieved, is read by the LLM and is cited. The RITE has 228 headed units: median 110 words, 32 above roughly 400 words (more than fits in 512 tokens), 34 headings with no text of their own, and several units with tables.
+
+**Options.** Fixed size with overlap; recursive splitting on separators; semantic chunking; structure-aware chunking; hierarchical (parent-child) chunking.
+
+**Decision.** Structure-aware chunking (`ingest/chunk.py`):
+- One chunk per article, provision, IT section with its own text and definition in Appendix 1; one per appendix for the rest.
+- Headings with no text of their own (Part, Chapter, parent IT sections) only contribute their title to the path of their children.
+- Long units are split at their numbered paragraphs ("1.", "2.") and, if that is not enough, at paragraph boundaries, up to a **provisional limit of 300 words**. Each piece gets its own id (`#1`, `#2`) and the full path. Different units are never merged.
+- Tables stay inside their section (`has_table`).
+- Each chunk keeps `text` (the body, for the prompt) and `embed_text` (path of titles + body, for the embedding).
+- Deterministic, readable ids: `RITE:art-2`, `RITE:IT-1.1.4.1.2`, `RITE:AP1:aire-de-expulsion`.
+
+**Why.** It is the unit the regulation itself uses and the one people cite: one chunk = one unit of meaning = one citation. The path prefix gives context to the 42 very short units without duplicating content as an overlap would. Stable ids make the Phase 2 golden set possible.
+
+**Result.** 389 chunks (median 99 words, maximum 300); 49 units split into pieces; 106 definitions (plus the appendix introduction); 25 chunks with tables. All 47 articles and all 130 leaf IT sections have a chunk. All body text is preserved (49,780 words in units = in chunks), and two runs produce the same file. Layout signals used: a new paragraph is indented (x0 ≈ 107.7) and a continuation line is not (x0 ≈ 90.7), which also joins headings that wrap onto a second line.
+
+**Consequences and known limitations.**
+- The limit is in words; Phase 1 piece 3 will measure it in tokens of the actual embedding model and adjust it.
+- The path prefix is long for deep IT sections (about 40 words): it uses a noticeable share of the window. If it hurts, keep only the last levels.
+- Tables are plain text with one cell per line: an LLM can read them, but a question about a specific value may not retrieve them well.
+- When a numbered paragraph is longer than the limit, a list ("a), b)…") can be separated from its lead-in sentence.
+- Cross-references (`refs`) are detected with approximate patterns, only inside the Regulation. They are not used until Phase 6.
+
+**How we will know it was wrong.** If retrieval in Phase 2 fails on questions whose answer needs the parent's or neighbouring sections' context, try hierarchical chunking. If questions about table values fail, rebuild tables as rows of text ("Summer: operative temperature 23…25 °C, relative humidity 45…60 %").
+
+---
+
 ## ADR-004 · Corpus and PDF ingestion: RITE, structure-preserving extraction
 
 **Date:** 2026-11-13 · **Status:** accepted
