@@ -8,6 +8,31 @@ Una entrada por decisión: contexto, opciones consideradas, decisión y cómo sa
 
 ---
 
+## ADR-004 · Corpus e ingesta del PDF: RITE y extracción que conserva la estructura
+
+**Fecha:** 2026-11-13 · **Estado:** aceptada
+
+**Contexto.** La Fase 1 necesita una sola norma de acceso libre que el autor pueda juzgar, y una ingesta que conserve la estructura suficiente para citar el artículo exacto. Los candidatos eran el REBT, el reglamento de ICT y un Documento Básico del CTE.
+
+**Opciones.**
+- Formato de origen: el PDF consolidado del BOE, o el HTML/XML consolidado que también publica el BOE, con los artículos ya etiquetados.
+- Extracción: texto plano por página (`page.get_text()`), o líneas de texto con sus señales de maquetación (negrita, tamaño de letra, posición).
+
+**Decisión.** Corpus: el RITE (Real Decreto 1027/2007, `BOE-A-2007-15820`), texto consolidado del BOE, última modificación del 02/08/2022. Ingesta desde el **PDF** con PyMuPDF, en dos etapas: `ingest/extract.py` produce líneas limpias con sus señales de maquetación (`bold_ratio`, tamaño, posición, página impresa) y elimina la maquetación del BOE (portada, índice, cabecera, pie y aviso legal final); el chunker (siguiente paso) decide la estructura. El extractor se para con un error si no encuentra el inicio del cuerpo ("TEXTO CONSOLIDADO"), y guarda el identificador del documento, la versión del corpus y el SHA-256 del PDF.
+
+**Por qué.** El PDF es el caso realista: las normas UNE, los manuales y la documentación de obra solo existen en PDF, sin alternativa estructurada. Conservar las señales de maquetación en lugar de aplanar a texto permite al chunker usarlas; al revisar los datos reales se vio que los encabezados de artículo llevan negrita parcial (número en negrita, título en cursiva) y los de las instrucciones técnicas (IT) no, así que los encabezados IT se detectan por regex a principio de línea. Fallar pronto evita indexar el índice sin darse cuenta: sus líneas, que son solo títulos, ganarían a los chunks reales en la búsqueda. La versión y el hash permiten saber si un cambio en los resultados de la evaluación viene del código o del corpus.
+
+**Consecuencias y limitaciones conocidas.**
+- Los Apéndices 4 y 5 (modelos de declaración responsable) son imágenes en el PDF: su texto no se extrae. Se acepta, porque son plantillas de formulario y no requisitos técnicos.
+- El PDF consolidado no dice qué norma posterior modificó cada artículo. Las relaciones "modifica" del grafo (Fase 6) tendrán que salir del HTML del BOE o de su página de análisis.
+- Las tablas (8 y 6,5 pt, unas 800 líneas) se conservan como texto plano en orden de lectura; su estructura no se reconstruye en la Fase 1.
+- Las zonas de cabecera y pie y los patrones son propios de la maquetación del consolidado del BOE.
+- Validación: 12 pruebas (`tests/test_extract.py`), 5 unitarias con datos fabricados y 7 sobre la salida real (artículos 1-47 sin huecos, cada sección IT con su padre, sin restos de maquetación del BOE, páginas 5-96). Comprueban la estructura, no que esté cada palabra del PDF.
+
+**Cómo sabremos si era un error.** Si en la Fase 2 los errores de evaluación se deben a la extracción (texto perdido, tablas desordenadas), o si añadir un segundo documento del BOE obliga a reescribir los patrones, se cambia la fuente al XML consolidado del BOE para los documentos del BOE y se mantiene el PDF para los que solo existen en PDF.
+
+---
+
 ## ADR-003 · Conda solo para el intérprete; pip + pyproject.toml para las dependencias
 
 **Fecha:** 2026-11-11 · **Estado:** aceptada

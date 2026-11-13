@@ -6,6 +6,31 @@ One entry per decision: context, options considered, decision, and how we will k
 
 ---
 
+## ADR-004 · Corpus and PDF ingestion: RITE, structure-preserving extraction
+
+**Date:** 2026-11-13 · **Status:** accepted
+
+**Context.** Phase 1 needs one freely available regulation that the author can judge, and an ingestion step that keeps enough structure to cite the exact article. Candidates were the REBT, the telecom infrastructure regulation (ICT) and a CTE basic document.
+
+**Options.**
+- Source format: the BOE consolidated PDF, or the consolidated HTML/XML the BOE also publishes, where articles are already tagged.
+- Extraction: plain text per page (`page.get_text()`), or text lines with their layout signals (bold, font size, position).
+
+**Decision.** Corpus: the RITE (Royal Decree 1027/2007, `BOE-A-2007-15820`), BOE consolidated text, last amended 2022-08-02. Ingestion from the **PDF** with PyMuPDF, in two stages: `ingest/extract.py` produces clean lines with their layout signals (`bold_ratio`, size, position, printed page) and removes the BOE layout (cover, table of contents, page header, page footer, final legal notice); the chunker (next step) decides the structure. The extractor stops with an error if the start of the body ("TEXTO CONSOLIDADO") is not found, and records the document id, the corpus version and the SHA-256 of the PDF.
+
+**Why.** The PDF is the realistic case: UNE standards, manuals and site documentation only come as PDF, with no structured alternative. Keeping layout signals instead of flattening to text lets the chunker use them; checking the real data showed that article headings carry partial bold (number in bold, title in italics) while technical-instruction headings (IT) do not, so IT headings are detected by regex at the start of the line. Failing fast avoids silently indexing the table of contents, whose title-only lines would outrank the real chunks in retrieval. The version and the hash make it possible to tell whether a change in evaluation results comes from the code or from the corpus.
+
+**Consequences and known limitations.**
+- Appendices 4 and 5 (responsible-declaration forms) are images in the PDF: their text is not extracted. Accepted, since they are form templates, not technical requirements.
+- The consolidated PDF does not say which later regulation amended each article. The "amends" relations for the knowledge graph (Phase 6) must come from the BOE HTML or its analysis page.
+- Tables (8 and 6.5 pt, about 800 lines) are kept as plain text in reading order; their structure is not reconstructed in Phase 1.
+- The page-header and footer zones and the patterns are specific to the BOE consolidated layout.
+- Validation: 12 tests (`tests/test_extract.py`), 5 unit tests with synthetic data and 7 on the real output (articles 1-47 with no gaps, every IT section with its parent, no BOE layout left, page range 5-96). They check structure, not that every word of the PDF is present.
+
+**How we will know it was wrong.** If evaluation errors in Phase 2 trace back to extraction (lost text, scrambled tables), or if adding a second BOE document means rewriting the patterns, switch the source to the BOE consolidated XML for BOE documents and keep the PDF path for documents that only exist as PDF.
+
+---
+
 ## ADR-003 · Conda for the interpreter only, pip + pyproject.toml for dependencies
 
 **Date:** 2026-11-11 · **Status:** accepted

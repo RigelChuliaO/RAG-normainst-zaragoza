@@ -164,6 +164,30 @@ header{display:grid; grid-template-columns:auto 1fr; gap:20px; align-items:cente
 .box.warn{border-color:var(--signal); background:var(--signal-soft)}
 .box.ok{border-color:var(--good); background:var(--good-soft)}
 
+/* Qué toca ahora */
+.next{border:1.5px solid var(--signal); display:grid; gap:12px}
+.next .now{display:grid; grid-template-columns:auto 1fr; gap:12px; align-items:start; background:var(--signal-soft); border-radius:10px; padding:12px 14px}
+.next .now .big{font-family:var(--display); font-size:18px; font-weight:600}
+.next .now .num{font-family:var(--mono); font-size:12px; color:var(--signal); font-weight:500; margin-top:4px}
+.next ol{margin:0; padding-left:20px; display:grid; gap:4px; color:var(--muted)}
+.next .meta{font-family:var(--mono); font-size:12.5px; color:var(--muted)}
+/* Lista de tareas de la fase */
+.tasks{border:1px solid var(--line); border-radius:10px; padding:12px 14px; grid-column:1/-1}
+.tasks h4{margin:0 0 6px; font-size:13px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted)}
+.tasks .grp{font-weight:600; font-size:14px; margin:10px 0 4px}
+.tasks ul{list-style:none; margin:0; padding:0; display:grid; gap:3px}
+.tasks li{display:grid; grid-template-columns:20px 1fr auto; gap:6px; font-size:14px}
+.tasks .th{font-family:var(--mono); font-size:12px; color:var(--muted); white-space:nowrap}
+.tasks li.done{color:var(--muted)}
+.tasks li.done span:nth-child(2){text-decoration:line-through}
+.tasks li.next{background:var(--signal-soft); border-radius:6px; font-weight:600}
+.tasks .ck{font-family:var(--mono); color:var(--good)}
+.tasks li:not(.done) .ck{color:var(--muted)}
+.count{font-family:var(--mono); font-size:12.5px; padding:3px 10px; border-radius:99px; border:1.5px solid var(--line)}
+.count.doing{border-color:var(--signal); color:var(--signal)}
+.count.done{border-color:var(--good); color:var(--good)}
+.g-cnt{font-family:var(--mono); font-size:11px; color:var(--muted); margin-left:auto; padding-right:4px}
+
 /* Cuándo NO */
 .cards{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
 .card{perspective:900px; min-height:150px; border:0; padding:0; background:transparent; text-align:left}
@@ -240,6 +264,7 @@ footer{color:var(--muted); font-size:13px}
   <div class="head-text">
     <span class="tag">ASISTENTE RAG · NORMATIVA TÉCNICA · PLAN DE TRABAJO</span>
     <h1>Python puro primero, LangChain después</h1>
+    <span class="sub" id="updated"></span>
     <div class="bubble" id="bubble" aria-live="polite"><span class="beep">BEEP</span>Púlsame y te recuerdo algo útil. Pulsa «Simular consulta» y te enseño cómo viaja una pregunta por el RAG.</div>
     <div class="head-actions">
       <button class="btn" id="simBtn" type="button">Simular consulta</button>
@@ -251,8 +276,16 @@ footer{color:var(--muted); font-size:13px}
 <section class="tiles" aria-label="Resumen">
   <div class="tile"><span class="k">Núcleo del proyecto</span><span class="v">50 h</span><span class="n">F0 a F4 · listo hacia la semana 7</span></div>
   <div class="tile"><span class="k">Extensiones</span><span class="v">62 h</span><span class="n">F5 a F8 · hasta la semana 17</span></div>
-  <div class="tile"><span class="k">Tu progreso</span><span class="v" id="progV">0 %</span><span class="n" id="progN">0 de 112 h hechas</span><div class="meter"><i id="progBar"></i></div></div>
+  <div class="tile"><span class="k">Tu progreso</span><span class="v" id="progV">0 %</span><span class="n" id="progN">0 tareas hechas</span><div class="meter"><i id="progBar"></i></div><span class="n" id="progH" style="margin-top:6px">0 h realizadas</span><div class="meter"><i id="progHBar" style="background:var(--signal)"></i></div></div>
   <div class="tile"><span class="k">Hardware · GPU 4 GB</span><span class="v">Qwen 3-4B</span><span class="n">Cuantizado a 4 bits, unos 2-3 GB (aprox.). Un 7B no cabe entero.</span></div>
+</section>
+
+<section class="panel next" aria-labelledby="nextT" id="nextPanel">
+  <div class="sec-head" style="margin-bottom:0">
+    <div><span class="tag">SIGUIENTE PASO</span><h2 id="nextT">Qué toca ahora</h2></div>
+    <button class="btn ghost" type="button" id="goPhase">Ver la fase completa</button>
+  </div>
+  <div id="nextBody"></div>
 </section>
 
 <section class="panel" aria-labelledby="ragT">
@@ -298,7 +331,7 @@ footer{color:var(--muted); font-size:13px}
     <div>
       <span class="tag">CALENDARIO · 8-10 H/SEMANA</span>
       <h2 id="fasesT">Fases</h2>
-      <p>Pulsa una fase para ver conceptos, errores típicos y cómo sabrías que funciona. Marca su estado y el progreso se guarda en este navegador.</p>
+      <p>Pulsa una fase para ver sus tareas, conceptos, errores típicos y cómo sabrías que funciona. El estado de cada fase sale de sus tareas, que se mantienen al día en docs/plan.md y aquí.</p>
     </div>
   </div>
   <div class="gantt" id="gantt"></div>
@@ -324,18 +357,25 @@ footer{color:var(--muted); font-size:13px}
   <div class="panel">
     <span class="tag">REPOSITORIO</span>
     <h2 style="margin-bottom:12px">Estructura</h2>
-<pre class="tree">rag-normativa/
+<pre class="tree">RAG/
 ├── README.md        <span class="c"># en inglés, con resultados</span>
+├── pyproject.toml   <span class="c"># dependencias (+ grupo dev)</span>
 ├── .env.example
-├── .gitignore       <span class="c"># .env, data/raw/</span>
-├── requirements.txt <span class="c"># versiones fijadas</span>
-├── docs/decisions.md
+├── .gitignore       <span class="c"># .env, data/raw/*, data/interim/</span>
+├── docs/
+│   ├── plan.md      <span class="c"># fuente de las tareas</span>
+│   ├── decisions.md
+│   └── dashboard/   <span class="c"># esta página</span>
 ├── data/
 │   ├── raw/         <span class="c"># PDFs, fuera de git</span>
+│   ├── interim/     <span class="c"># líneas e inspector, fuera de git</span>
+│   ├── processed/   <span class="c"># chunks</span>
 │   └── sample/      <span class="c"># muestra del BOE</span>
-├── src/rag/         <span class="c"># Python puro (F1)</span>
-│   ├── ingest.py
-│   ├── chunking.py  <span class="c"># lo reutiliza la F2B</span>
+├── src/rag_normainst/
+│   ├── ingest/
+│   │   ├── extract.py            <span class="c"># ✅</span>
+│   │   ├── inspect_extraction.py <span class="c"># ✅</span>
+│   │   └── chunk.py  <span class="c"># lo reutiliza la F2B</span>
 │   ├── embeddings.py
 │   ├── store.py
 │   ├── generate.py
@@ -345,11 +385,12 @@ footer{color:var(--muted); font-size:13px}
 │   ├── golden_set.jsonl
 │   ├── run_eval.py  <span class="c"># --pipeline pure|langchain</span>
 │   └── results/
-└── tests/</pre>
+└── tests/
+    └── test_extract.py <span class="c"># ✅ 12 pruebas</span></pre>
   </div>
   <div class="panel">
-    <span class="tag">ANTES DE LA FASE 1</span>
-    <h2 style="margin-bottom:12px">Pendiente</h2>
+    <span class="tag">DECISIONES</span>
+    <h2 style="margin-bottom:12px">Pendientes</h2>
     <div class="checks" id="todo"></div>
   </div>
   <div class="panel">
@@ -361,7 +402,8 @@ footer{color:var(--muted); font-size:13px}
       <li><span>Todo en local con Ollama. El mismo cliente sirve contra Azure OpenAI.</span></li>
       <li><span>Cada fase acaba en algo que funciona, con commit y README.</span></li>
       <li><span>Registro de decisiones actualizado en cada fase.</span></li>
-      <li><span>Tú escribes el código; yo doy la estructura y reviso.</span></li>
+      <li><span>Tú escribes el código; si me pides que lo escriba yo, después me lo explicas.</span></li>
+      <li><span>Comentarios en español, también en el código.</span></li>
     </ul>
   </div>
 </section>
@@ -370,111 +412,233 @@ footer{color:var(--muted); font-size:13px}
 </div>
 
 <script>
+/* Fases y tareas. FUENTE: docs/plan.md, sección «Tareas por fase».
+   Cada tarea es [texto, hecha, horas estimadas]. Las horas de cada fase suman sus h. El estado de cada fase se calcula a partir de sus tareas:
+   todas hechas = terminada; alguna hecha = en curso; ninguna = pendiente.
+   Actualizado el 13 de noviembre de 2026. */
+const UPDATED = "13 de noviembre de 2026";
 const PHASES = [
   {id:"f0", name:"F0 · Repositorio", h:2, s:1, e:1, core:true,
-   goal:"Repositorio en GitHub, entorno conda con requirements.txt de versiones fijadas, .gitignore con .env, README inicial y docs/decisions.md.",
-   concepts:["Estructura de proyecto (src/ layout)","Entorno reproducible con versiones fijadas"],
-   errors:["No fijar versiones: torch y sentence-transformers rompen el entorno al actualizarse","Subir el .env o algún PDF en el primer commit"],
-   check:"Clonas el repo en otra carpeta, creas el entorno desde requirements.txt y arranca sin tocar nada.",
-   out:"Primer commit, sin secretos ni PDFs."},
+   goal:"Repositorio en GitHub, entorno conda solo para el intérprete con dependencias en pyproject.toml, paquete instalable con src layout, .gitignore con .env, .gitattributes, licencia MIT, README inicial y registro de decisiones.",
+   concepts:["Estructura de proyecto (src layout) y paquete instalable en modo editable","Dependencias declaradas en pyproject.toml; versiones exactas con lockfile en la F3"],
+   errors:["Instalar sin el entorno activado y acabar en otro Python (vivido)","Subir el .env o algún PDF en el primer commit"],
+   check:"Clonas el repo en otra carpeta, instalas con pip install -e . y el import funciona.",
+   out:"Commits sin secretos ni PDFs, subidos a main.",
+   tasks:[{g:null, items:[
+     ["Repositorio público en GitHub, commits con el email noreply", true, 0.25],
+     ["Entorno conda solo para el intérprete (Python 3.12); dependencias en pyproject.toml con pip (ADR-003)", true, 0.5],
+     ["Paquete src/rag_normainst/ (src layout) instalado en modo editable y comprobado", true, 0.25],
+     [".gitignore con .env y data/raw/* (excepción !data/raw/.gitkeep)", true, 0.25],
+     [".gitattributes con finales de línea LF", true, 0.1],
+     ["Licencia MIT", true, 0.1],
+     ["README inicial con el problema y la sección Development setup", true, 0.2],
+     ["Registro de decisiones en inglés y español (ADR-001 a ADR-003)", true, 0.25],
+     ["Commits subidos a main (fb7c187, da61f7d, 20eb566)", true, 0.1]]}]},
   {id:"f1", name:"F1 · RAG en Python puro", h:14, s:1, e:2, core:true,
-   goal:"Extracción con PyMuPDF, troceado por artículo, embeddings con sentence-transformers, Chroma embebido, prompt propio y llamada a Ollama con el cliente openai contra /v1.",
+   goal:"Corpus: RITE consolidado (BOE-A-2007-15820). Extracción con PyMuPDF, troceado por estructura (artículos e instrucciones técnicas), embeddings con sentence-transformers, Chroma embebido, prompt propio y llamada a Ollama con el cliente openai contra /v1.",
    concepts:["Qué es un embedding y cómo se elige el modelo","Por qué similitud del coseno (una vez, a mano con NumPy)","Ventana del modelo de embeddings frente a tamaño del trozo","Por qué el troceado lo condiciona todo"],
-   errors:["Artículos largos que se truncan sin aviso al superar la ventana","Perder el número de artículo en los metadatos y no poder citar","Modelos tipo E5 que exigen los prefijos query: y passage:","Con 4 GB, meter demasiados trozos en el prompt"],
+   errors:["Artículos largos que se truncan sin aviso al superar la ventana","Perder el número de artículo en los metadatos y no poder citar","Modelos tipo E5 que exigen los prefijos query: y passage:","Con 4 GB, meter demasiados trozos en el prompt","Encabezados IT del RITE sin negrita: se detectan por regex, no por formato (comprobado)"],
    check:"Cinco preguntas cuya respuesta conoces, revisando a mano qué trozos se recuperaron, no solo la respuesta.",
-   out:"Script que responde citando el artículo, detrás de answer(question) -> Answer."},
+   out:"Script que responde citando el artículo, detrás de answer(question) -> Answer.",
+   tasks:[
+    {g:"Pieza 1 · Extracción del PDF", items:[
+     ["Elegir el corpus: RITE consolidado (BOE-A-2007-15820, versión 02/08/2022)", true, 0.25],
+     ["Analizar la anatomía del PDF: portada, índice, cabecera, pie, artículos, IT, tablas, apéndices", true, 0.5],
+     ["ingest/extract.py: líneas limpias con su formato → data/interim/*.lines.jsonl + .meta.json", true, 1],
+     ["Validar la extracción: invariantes y dominio (artículos 1-47 sin huecos, IT con su padre)", true, 0.5],
+     ["ingest/inspect_extraction.py: inspector visual PDF frente a lo extraído", true, 0.5],
+     ["Filtrar el aviso legal de la última página", true, 0.25],
+     ["tests/test_extract.py: 5 pruebas unitarias + 7 sobre los datos reales (12 en verde)", true, 0.75],
+     ["Configurar VS Code: intérprete, terminal cmd con conda, launch.json con argumentos", true, 0.25],
+     ["pytest como dependencia de desarrollo (.[dev]) en pyproject.toml", true, 0.1],
+     ["Ejercicio de mutation testing: borrar «Artículo 23.» del .lines.jsonl y ver fallar el test", true, 0.25],
+     ["Explicar con tus palabras: bold_ratio, el error de split_front_matter, el sha256", true, 0.5],
+     ["Anotar en decisions.md: corpus y versión, apéndices como imagen, notas de modificación ausentes", true, 0.25],
+     ["Commit de la pieza 1 (ingest/, tests/, pyproject.toml, plan.md, dashboard)", false, 0.25]]},
+    {g:"Pieza 2 · Chunking por estructura", items:[
+     ["Diseño: unidad de chunk, ruta de ancestros como prefijo, tablas pegadas a su sección", false, 0.5],
+     ["ingest/chunk.py → data/processed/chunks.jsonl (id, doc, path, title, page_start, text)", false, 1.25],
+     ["Detectar referencias cruzadas («artículo 18», «IT 1.2.4») y guardarlas en refs", false, 0.5],
+     ["Tests del chunker: ningún chunk sin cuerpo, todos los artículos e IT presentes", false, 0.5],
+     ["Inspeccionar a mano una muestra de chunks (corto, largo, con tabla)", false, 0.25]]},
+    {g:"Pieza 3 · Embeddings e índice", items:[
+     ["nvidia-smi: modelo de GPU, VRAM libre y versión de CUDA", false, 0.1],
+     ["Concepto: qué es un embedding, cómo se elige el modelo, prefijos query:/passage: de E5", false, 0.5],
+     ["Elegir 2-3 modelos candidatos (multilingual-e5-small/base, bge-m3) con su ventana de tokens", false, 0.4],
+     ["Medir la longitud de los chunks en tokens; partir los que superen la ventana", false, 0.5],
+     ["Indexar en Chroma embebido, con los metadatos para citar", false, 1]]},
+    {g:"Pieza 4 · Recuperación", items:[
+     ["Ejercicio: similitud del coseno a mano con NumPy y comparar con Chroma", false, 0.5],
+     ["Búsqueda top-k con Chroma", false, 0.25],
+     ["5 preguntas cuya respuesta conoces, revisando qué chunks se recuperan", false, 0.5]]},
+    {g:"Pieza 5 · Generación y entregable", items:[
+     ["Prompt con los chunks etiquetados; la cita la construye el código desde los metadatos", false, 0.5],
+     ["Cliente openai contra Ollama /v1 (Qwen 3-4B en Q4)", false, 0.25],
+     ["answer(question) -> Answer (texto, citas, ids recuperados)", false, 0.5],
+     ["Script de línea de comandos que responde citando el artículo", false, 0.25],
+     ["README (inglés) y decisions.md actualizados; commit de la Fase 1", false, 0.4]]}]},
   {id:"f2", name:"F2 · Evaluación", h:8, s:3, e:3, core:true, key:true,
    goal:"Golden set de 30-50 preguntas escritas por ti, con artículo correcto y respuesta esperada. Recuperación y generación se miden por separado.",
    concepts:["hit rate@k, recall@k y MRR","faithfulness y answer correctness","LLM-as-a-judge calibrado contra tu juicio","Regression suite y preguntas sin respuesta («no consta»)"],
    errors:["Mezclar recuperación y generación en una sola nota","Usar un modelo de 3-4B como juez sin calibrarlo contra tu criterio","Escribir las preguntas mirando los trozos recuperados"],
    check:"La métrica cambia cuando rompes algo a propósito (k=1, troceado fijo). Si no se mueve, no está midiendo.",
-   out:"Script de evaluación y baseline v0 (Python puro) en el README."},
+   out:"Script de evaluación y baseline v0 (Python puro) en el README.",
+   tasks:[{g:null, items:[
+     ["Golden set de 30-50 preguntas escritas por ti, con artículos correctos y respuesta esperada", false, 2],
+     ["Incluir preguntas sin respuesta en el corpus (¿dice «no consta»?)", false, 0.5],
+     ["Métricas de recuperación: hit rate@k, recall@k, MRR", false, 1],
+     ["Métricas de generación: faithfulness y answer correctness", false, 1],
+     ["LLM-as-a-judge calibrado contra tu juicio en una muestra", false, 1],
+     ["Desglose de errores por tipo de pregunta", false, 0.5],
+     ["eval/run_eval.py --pipeline pure, con resultados fechados en eval/results/", false, 1],
+     ["Regression suite: correr la evaluación al cambiar el prompt o el chunking", false, 0.5],
+     ["Baseline v0 publicada en el README", false, 0.25],
+     ["Commit de la Fase 2", false, 0.25]]}]},
   {id:"f2b", name:"F2B · Port a LangChain", h:6, s:4, e:4, core:true,
-   goal:"La misma tubería con Document, Embeddings, VectorStore/Retriever, PromptTemplate, ChatOllama y LCEL. Reutiliza tu chunking.py.",
+   goal:"La misma tubería con Document, Embeddings, VectorStore/Retriever, PromptTemplate, ChatOllama y LCEL. Reutiliza tu chunk.py.",
    concepts:["Runnables y LCEL (el operador |)","Qué función tuya sustituye cada abstracción","Cuándo SÍ y cuándo NO usar un framework"],
    errors:["Prompt por defecto o k distintos que hacen injusta la comparación","Seguir un tutorial escrito para otra versión de LangChain"],
    check:"Imprimes el prompt real que envía LangChain y lo comparas con el tuyo antes de evaluar.",
-   out:"Tabla Python puro vs LangChain en el README: métricas, líneas de código y dependencias."},
+   out:"Tabla Python puro vs LangChain en el README: métricas, líneas de código y dependencias.",
+   tasks:[{g:null, items:[
+     ["Tabla: cada abstracción de LangChain frente a la función de la Fase 1 que sustituye", false, 0.5],
+     ["langchain_port/pipeline.py con la misma interfaz answer(), reutilizando el chunking propio", false, 2.5],
+     ["Imprimir el prompt real que envía LangChain y alinear k y prompt con los tuyos", false, 0.75],
+     ["run_eval.py --pipeline langchain", false, 0.5],
+     ["Tabla Python puro vs LangChain en el README (métricas, líneas de código, dependencias)", false, 1],
+     ["Cuándo SÍ y cuándo NO usar el framework, por escrito en decisions.md", false, 0.75]]}]},
   {id:"f3", name:"F3 · Docker", h:12, s:5, e:6, core:true,
    goal:"Imagen frente a contenedor, Dockerfile, capas y caché, volúmenes, redes y docker compose. Postgres con pgvector en un segundo contenedor.",
    concepts:["Por qué un contenedor y no instalar en la máquina","Qué se pierde al borrar un contenedor y qué no","Cómo se hablan dos contenedores","Por qué CUDA y torch complican las imágenes de IA"],
    errors:["Imágenes de varios GB por torch con CUDA sin necesidad","Copiar el código antes de instalar dependencias y romper la caché","GPU en Windows: exige WSL2 y NVIDIA Container Toolkit (propuesta: Ollama en el host)"],
    check:"Borras los contenedores, haces docker compose up y la evaluación da lo mismo que antes.",
-   out:"docker compose up y el sistema funciona entero."},
+   out:"docker compose up y el sistema funciona entero.",
+   tasks:[{g:null, items:[
+     ["Conceptos: imagen frente a contenedor, capas y caché, volúmenes, redes, puertos, variables de entorno", false, 2],
+     ["Lockfile con versiones exactas (ADR-003)", false, 0.5],
+     ["Dockerfile de la aplicación (dependencias antes que código, sin CUDA si no hace falta)", false, 2],
+     ["Contenedor de Postgres con pgvector", false, 1],
+     ["Migrar el almacén de Chroma a pgvector", false, 2],
+     ["Volumen para que el índice sobreviva a reinicios", false, 0.5],
+     ["Conexión con Ollama en el host (host.docker.internal)", false, 1],
+     ["docker-compose.yml con los servicios", false, 1.5],
+     ["Comprobar que la evaluación da lo mismo que antes de migrar", false, 0.75],
+     ["README: docker compose up como única orden", false, 0.5],
+     ["Commit de la Fase 3", false, 0.25]]}]},
   {id:"f4", name:"F4 · API e interfaz", h:8, s:7, e:7, core:true, last:true,
    goal:"FastAPI con esquemas Pydantic (Answer pasa a ser un modelo Pydantic), documentación automática y Streamlit encima. Tercer servicio en el compose.",
    concepts:["Por qué un esquema validado y no un diccionario","Modelos de petición y respuesta","Documentación OpenAPI automática en /docs"],
    errors:["Devolver diccionarios sin modelo y perder la validación","Streamlit llamando a la lógica directamente en vez de a la API"],
    check:"Mandas una petición mal formada y la API responde 422 explicando qué campo falla.",
-   out:"API documentada e interfaz utilizable. El proyecto ya es enseñable."},
+   out:"API documentada e interfaz utilizable. El proyecto ya es enseñable.",
+   tasks:[{g:null, items:[
+     ["Concepto: por qué un esquema Pydantic y no un diccionario", false, 0.75],
+     ["Answer como modelo Pydantic", false, 0.5],
+     ["FastAPI: endpoints de pregunta y salud", false, 2],
+     ["Revisar la documentación automática (/docs)", false, 0.25],
+     ["Interfaz Streamlit que llama a la API", false, 2.5],
+     ["Tercer servicio en el compose", false, 1],
+     ["Capturas y diagrama de arquitectura en el README", false, 0.75],
+     ["Commit de la Fase 4", false, 0.25]]}]},
   {id:"f5", name:"F5 · Búsqueda híbrida", h:10, s:8, e:9,
    goal:"Búsqueda léxica (BM25 o full-text de Postgres) más vectorial, re-ranking y filtros por metadatos en SQL.",
    concepts:["Por qué la semántica falla con códigos y números de artículo","Fusión de rankings","Cuándo compensa el coste de un re-ranker"],
    errors:["Declarar una mejora sin medirla contra la baseline","Un re-ranker en GPU compitiendo con el LLM por los 4 GB"],
    check:"Preguntas con número de artículo o código: recall@k antes y después.",
-   out:"Medición contra la baseline. Si no mejora, se dice."},
+   out:"Medición contra la baseline. Si no mejora, se dice.",
+   tasks:[{g:null, items:[
+     ["Por qué la búsqueda semántica falla con códigos y números de artículo", false, 0.5],
+     ["Búsqueda léxica (full-text de Postgres o BM25)", false, 2.5],
+     ["Combinar léxica y vectorial", false, 2],
+     ["Re-ranker y cuándo compensa su coste", false, 2.5],
+     ["Filtros por metadatos en SQL", false, 1],
+     ["Medición contra la baseline (si no mejora, se dice)", false, 1.5]]}]},
   {id:"f6", name:"F6 · Grafo", h:20, s:10, e:12,
    goal:"La normativa como grafo en Neo4j: documento, sección, artículo y concepto; aristas contiene, referencia, modifica y aplica a.",
    concepts:["Modelado de grafos y Cypher","Recuperación híbrida: el vector encuentra, el grafo arrastra","Por qué «relacionado» no es «parecido»"],
-   errors:["Modelar el grafo antes de saber qué pregunta resuelve","Extraer relaciones con el LLM sin verificarlas"],
+   errors:["Modelar el grafo antes de saber qué pregunta resuelve","Extraer relaciones con el LLM sin verificarlas","Suponer que el PDF consolidado trae qué norma modificó cada artículo (no lo trae)"],
    check:"Preguntas sobre artículos modificados: ¿recupera ahora el artículo modificador que la búsqueda vectorial no encontraba?",
-   out:"Medición contra la baseline con una mejora concreta."},
+   out:"Medición contra la baseline con una mejora concreta.",
+   tasks:[{g:null, items:[
+     ["Cursos de GraphAcademy (Fundamentals, Cypher, Data Modeling, GenAI, GraphRAG)", false, 7.5],
+     ["Modelo: nodos (documento, sección, artículo, concepto…) y aristas (contiene, referencia, modifica, aplica a)", false, 2],
+     ["Fuente de las relaciones «modifica» (HTML o análisis del BOE)", false, 1.5],
+     ["Neo4j en un contenedor", false, 1],
+     ["Carga del grafo desde los chunks y sus refs", false, 2.5],
+     ["Recuperación híbrida: vectorial + vecinos en el grafo", false, 3],
+     ["Medición contra la baseline en preguntas que necesiten artículos relacionados", false, 1.5],
+     ["(Opcional) La misma ontología en OWL/RDF con SPARQL", false, 1]]}]},
   {id:"f7", name:"F7 · Agentes", h:12, s:13, e:14,
    goal:"Function calling a mano: definiciones de herramientas, petición estructurada, ejecución y resultado. Después, LangGraph.",
    concepts:["El bucle de herramientas","Modos de fallo: argumentos mal formados, herramientas inventadas, bucles sin fin","Cadena determinista frente a agente"],
    errors:["Fiarse del function calling de un modelo de 3-4B sin validar la salida","Dejar el bucle sin límite de iteraciones"],
    check:"Casos con la herramienta correcta conocida: tasa de elección correcta y de JSON válido.",
-   out:"Un agente que decide entre normativa, grafo o respuesta directa."},
+   out:"Un agente que decide entre normativa, grafo o respuesta directa.",
+   tasks:[{g:null, items:[
+     ["Function calling a mano: definiciones de herramientas, petición estructurada, ejecución, respuesta", false, 3],
+     ["Modos de fallo: argumentos mal formados, herramientas inventadas, bucles que no convergen", false, 1.5],
+     ["Herramientas: consultar normativa, buscar en el grafo, responder directamente", false, 2],
+     ["Agente que decide entre ellas", false, 2],
+     ["Reimplementar con LangGraph y comparar", false, 2],
+     ["Cuándo una cadena determinista gana a un agente", false, 0.5],
+     ["Medición y commit", false, 1]]}]},
   {id:"f8", name:"F8 · Airflow (opcional)", h:20, s:15, e:17, opt:true,
    goal:"DAG de ingesta: extraer, trocear, generar embeddings y cargar. Reintentos, programación, relanzado por fechas e idempotencia.",
    concepts:["Idempotencia y backfill","Reintentos y dependencias entre tareas","El vocabulario estándar de tu proceso nocturno"],
    errors:["Tareas no idempotentes que duplican trozos al relanzar"],
    check:"Relanzas un día ya procesado y el índice no cambia.",
-   out:"DAG de ingesta funcionando."}
+   out:"DAG de ingesta funcionando.",
+   tasks:[{g:null, items:[
+     ["Planteamiento: vocabulario estándar de tu proceso nocturno de 10 000 documentos", false, 1],
+     ["DAG de ingesta: extraer, trocear, embeddings, cargar", false, 8],
+     ["Reintentos y programación", false, 3],
+     ["Relanzado por fechas (backfill)", false, 3],
+     ["Idempotencia: relanzar sin duplicar", false, 3.5],
+     ["Commit y README", false, 1.5]]}]}
 ];
 
 const NODES = {
   pdf:{lane:"ingest", py:"PDF del BOE", lc:"PDF del BOE", file:"data/raw/", ph:"F1",
-    what:"Texto de normativa de acceso libre. Empieza con un solo documento: REBT o reglamento de ICT.",
+    what:"RITE consolidado (BOE-A-2007-15820, versión 02/08/2022): 97 páginas de acceso libre. Un solo documento para empezar.",
     lcwhat:"Igual. LangChain no cambia la fuente.",
     warn:"Nunca se sube al repo. Las normas UNE no entran en el corpus."},
-  extract:{lane:"ingest", py:"Extracción", lc:"PyMuPDFLoader", sub:"PyMuPDF", lcsub:"document_loaders", file:"src/rag/ingest.py", ph:"F1",
-    what:"Saca el texto página a página y limpia cabeceras, pies y números de página del BOE.",
-    lcwhat:"Devuelve una lista de Document con el texto y metadatos de página. Lo hace tu ingest.py.",
+  extract:{lane:"ingest", py:"Extracción", lc:"PyMuPDFLoader", sub:"PyMuPDF", lcsub:"document_loaders", file:"src/rag_normainst/ingest/extract.py", ph:"F1",
+    what:"Saca el texto línea a línea y quita portada, índice, cabeceras, pies y el aviso legal del BOE. Conserva negrita, tamaño y posición de cada línea para el troceado. Hecho y con 12 pruebas.",
+    lcwhat:"Devuelve una lista de Document con el texto y metadatos de página. Lo hace tu extract.py.",
     warn:"Cabeceras repetidas que se cuelan en cada trozo y ensucian los embeddings."},
-  chunk:{lane:"ingest", py:"Troceado por artículo", lc:"Tu chunking.py", sub:"regex sobre «Artículo N»", lcsub:"no se sustituye", file:"src/rag/chunking.py", ph:"F1",
+  chunk:{lane:"ingest", py:"Troceado por artículo", lc:"Tu chunk.py", sub:"regex sobre «Artículo N» e «IT N.N»", lcsub:"no se sustituye", file:"src/rag_normainst/ingest/chunk.py", ph:"F1",
     what:"Corta respetando el articulado y guarda en metadatos documento, sección y número de artículo. Es lo que permite citar.",
     lcwhat:"No se usa RecursiveCharacterTextSplitter: el port importa tu función para que la comparación sea justa.",
     warn:"Artículos más largos que la ventana del modelo de embeddings: se truncan sin aviso."},
-  embed:{lane:"ingest", py:"Embeddings", lc:"HuggingFaceEmbeddings", sub:"sentence-transformers", lcsub:"embed_documents()", file:"src/rag/embeddings.py", ph:"F1",
+  embed:{lane:"ingest", py:"Embeddings", lc:"HuggingFaceEmbeddings", sub:"sentence-transformers", lcsub:"embed_documents()", file:"src/rag_normainst/embeddings.py", ph:"F1",
     what:"Convierte cada trozo en un vector. Modelo multilingüe pequeño o mediano: con 4 GB de GPU, incluso en CPU va bien.",
     lcwhat:"Envuelve sentence-transformers. Ojo con si normaliza los vectores y con los prefijos.",
     warn:"Modelos tipo E5 exigen «passage:» al indexar y «query:» al preguntar."},
-  store:{lane:"ingest", py:"Almacén vectorial", lc:"VectorStore (Chroma)", sub:"Chroma → pgvector en F3", lcsub:"from_documents()", file:"src/rag/store.py", ph:"F1",
+  store:{lane:"ingest", py:"Almacén vectorial", lc:"VectorStore (Chroma)", sub:"Chroma → pgvector en F3", lcsub:"from_documents()", file:"src/rag_normainst/store.py", ph:"F1",
     what:"Guarda vectores, texto y metadatos. Chroma embebido para empezar; Postgres con pgvector en la Fase 3.",
     lcwhat:"Crea el índice y lo expone como retriever. Esconde la métrica de distancia que usa por defecto.",
     warn:"Mezclar métricas: si los vectores no están normalizados, L2 y coseno ordenan distinto."},
-  q:{lane:"query", py:"Pregunta", lc:"input", sub:"lenguaje natural", lcsub:"{question}", file:"src/rag/pipeline.py", ph:"F1",
+  q:{lane:"query", py:"Pregunta", lc:"input", sub:"lenguaje natural", lcsub:"{question}", file:"src/rag_normainst/pipeline.py", ph:"F1",
     what:"La pregunta del usuario entra por answer(question).",
     lcwhat:"Entra como diccionario en la cadena LCEL.",
     warn:"Preguntas con números de artículo o códigos: la búsqueda semántica sola falla (se arregla en F5)."},
-  qembed:{lane:"query", py:"Embedding de la pregunta", lc:"embed_query()", sub:"mismo modelo", lcsub:"Embeddings", file:"src/rag/embeddings.py", ph:"F1",
+  qembed:{lane:"query", py:"Embedding de la pregunta", lc:"embed_query()", sub:"mismo modelo", lcsub:"Embeddings", file:"src/rag_normainst/embeddings.py", ph:"F1",
     what:"La pregunta se convierte en vector con el mismo modelo que los trozos.",
     lcwhat:"El retriever lo llama por dentro.",
     warn:"Usar un modelo distinto al de la ingesta: los vectores no son comparables."},
-  search:{lane:"query", py:"Búsqueda top-k", lc:"Retriever", sub:"similitud del coseno", lcsub:"as_retriever(k=…)", file:"src/rag/store.py", ph:"F1",
+  search:{lane:"query", py:"Búsqueda top-k", lc:"Retriever", sub:"similitud del coseno", lcsub:"as_retriever(k=…)", file:"src/rag_normainst/store.py", ph:"F1",
     what:"Devuelve los k trozos más parecidos con sus metadatos. Haz una vez la versión a mano con NumPy.",
     lcwhat:"Su k por defecto puede no ser el tuyo. Fíjalo para comparar.",
     warn:"Un k grande no sale gratis con 4 GB: cada trozo ocupa contexto y memoria."},
-  prompt:{lane:"query", py:"Montaje del prompt", lc:"PromptTemplate", sub:"función propia", lcsub:"ChatPromptTemplate", file:"src/rag/generate.py", ph:"F1",
+  prompt:{lane:"query", py:"Montaje del prompt", lc:"PromptTemplate", sub:"función propia", lcsub:"ChatPromptTemplate", file:"src/rag_normainst/generate.py", ph:"F1",
     what:"Instrucciones, trozos con su número de artículo y la pregunta. Obliga a citar y a decir «no consta» si no está.",
     lcwhat:"Plantilla con variables. Imprime el prompt final que envía: es lo que más se esconde.",
     warn:"No imprimir nunca el prompt real y depurar a ciegas."},
-  llm:{lane:"query", py:"LLM local", lc:"ChatOllama", sub:"Ollama · Qwen 3-4B", lcsub:"langchain-ollama", file:"src/rag/generate.py", ph:"F1",
+  llm:{lane:"query", py:"LLM local", lc:"ChatOllama", sub:"Ollama · Qwen 3-4B", lcsub:"langchain-ollama", file:"src/rag_normainst/generate.py", ph:"F1",
     what:"Cliente openai contra el endpoint /v1 de Ollama. El mismo código sirve con Azure OpenAI cambiando la URL base.",
     lcwhat:"Integración específica de Ollama. Pierdes la portabilidad directa a Azure si no usas su cliente OpenAI.",
     warn:"Un 7B en Q4 no cabe entero en 4 GB: Ollama reparte con CPU y va lento."},
-  answer:{lane:"query", py:"Respuesta con cita", lc:"Output parser", sub:"Answer(texto, citas, ids)", lcsub:"StrOutputParser", file:"src/rag/pipeline.py", ph:"F1",
+  answer:{lane:"query", py:"Respuesta con cita", lc:"Output parser", sub:"Answer(texto, citas, ids)", lcsub:"StrOutputParser", file:"src/rag_normainst/pipeline.py", ph:"F1",
     what:"Devuelve texto, artículos citados e ids recuperados. Esa interfaz es la que mide la evaluación.",
     lcwhat:"Tu interfaz answer() envuelve la cadena para que el evaluador no note la diferencia.",
     warn:"Citas que no están entre los trozos recuperados: es alucinación, detéctala."},
@@ -495,9 +659,11 @@ const TIPS = [
   "4 GB de GPU: Qwen de 3-4B cuantizado.",
   "Imprime el prompt real. Siempre.",
   "¿Cuándo NO usarías una base vectorial?",
-  "Fija versiones en requirements.txt.",
+  "Dependencias en pyproject.toml; versiones exactas con lockfile en la F3.",
   "Cuenta el proyecto en 90 segundos: qué hiciste, qué falló y cómo lo arreglaste.",
-  "Cada fase acaba en un commit que funciona."
+  "Cada fase acaba en un commit que funciona.",
+  "El botón ▶ de VS Code no pasa argumentos: usa F5 o la terminal.",
+  "Antes de cada commit, git status."
 ];
 
 const NOS = [
@@ -510,10 +676,12 @@ const NOS = [
 ];
 
 const TODO = [
-  ["gpu","Ejecutar nvidia-smi y apuntar modelo, VRAM libre y versión de CUDA"],
-  ["corpus","Elegir el corpus inicial: REBT con sus ITC-BT, o reglamento de ICT"],
-  ["emb","Elegir 2-3 modelos de embeddings multilingües candidatos"],
-  ["repo","Crear el repositorio (Fase 0)"]
+  ["Corpus inicial: RITE consolidado (BOE-A-2007-15820, versión 02/08/2022)", true],
+  ["Modelo exacto de la GPU: nvidia-smi con modelo, VRAM libre y versión de CUDA", false],
+  ["Modelo de embeddings: 2-3 candidatos; se decide con la evaluación, no a ojo", false],
+  ["Tablas en los chunks: en la F1, texto tal cual + título; mejora medible después", true],
+  ["Relaciones «modifica» (F6): no están en el PDF; HTML o análisis del BOE", false],
+  ["Lockfile con versiones exactas (F3, ADR-003)", false]
 ];
 
 /* Estado guardado en este navegador */
@@ -521,11 +689,9 @@ const store = {
   get(k, d){ try{ const v = localStorage.getItem("ragplan:"+k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
   set(k, v){ try{ localStorage.setItem("ragplan:"+k, JSON.stringify(v)); }catch(e){} }
 };
-let status = store.get("status", {});
-let checks = store.get("checks", {});
 let view = "py";
 let selNode = "chunk";
-let selPhase = "f1";
+let selPhase = currentPhase().id;
 let sound = true;
 
 /* Robot y sonido */
@@ -629,7 +795,37 @@ document.getElementById("simBtn").addEventListener("click", async () => {
 });
 
 /* Fases */
-function st(id){ return status[id] || "todo"; }
+function phaseCounts(p){
+  const all = p.tasks.flatMap(g => g.items);
+  const sum = xs => xs.reduce((a, t) => a + t[2], 0);
+  return {done: all.filter(t => t[1]).length, total: all.length,
+          hDone: sum(all.filter(t => t[1])), hTotal: sum(all)};
+}
+function fmtH(h){ return h.toLocaleString("es-ES", {maximumFractionDigits: 2}) + " h"; }
+function st(id){
+  const c = phaseCounts(PHASES.find(p => p.id === id));
+  return c.done === c.total ? "done" : (c.done > 0 ? "doing" : "todo");
+}
+function currentPhase(){ return PHASES.find(p => st(p.id) !== "done") || PHASES[PHASES.length - 1]; }
+function pendingTasks(p){
+  const out = [];
+  p.tasks.forEach(g => g.items.forEach(t => { if(!t[1]) out.push({g: g.g, t: t[0], h: t[2]}); }));
+  return out;
+}
+function renderNext(){
+  const p = currentPhase(), c = phaseCounts(p), pend = pendingTasks(p);
+  document.getElementById("updated").textContent = "Actualizado el " + UPDATED + " · fuente: docs/plan.md";
+  if(!pend.length){ document.getElementById("nextBody").innerHTML = "<p>Todas las fases terminadas.</p>"; return; }
+  const first = pend[0], rest = pend.slice(1, 4);
+  document.getElementById("nextBody").innerHTML = `
+    <span class="meta">${p.name} · ${c.done} de ${c.total} tareas · ${fmtH(c.hDone)} de ${fmtH(c.hTotal)}${first.g ? " · " + first.g : ""}</span>
+    <div class="now"><span class="num">AHORA</span><span class="big">${first.t} <span class="meta">≈ ${fmtH(first.h)}</span></span></div>
+    ${rest.length ? `<div><span class="meta">Después:</span><ol>${rest.map(x => `<li>${x.t} <span class="meta">≈ ${fmtH(x.h)}</span>${x.g && x.g !== first.g ? ` <span class="meta">(${x.g})</span>` : ""}</li>`).join("")}</ol></div>` : ""}`;
+}
+document.getElementById("goPhase").addEventListener("click", () => {
+  selPhase = currentPhase().id; renderGantt();
+  document.getElementById("phaseDetail").scrollIntoView({behavior:"smooth", block:"start"});
+});
 function renderGantt(){
   const weeks = Array.from({length:17}, (_, i) => `<span>${i + 1}</span>`).join("");
   let html = `<div class="g-row g-head"><span class="tag">FASE</span><span class="tag" style="text-align:right">H</span><div class="weeks">${weeks}</div></div>`;
@@ -637,7 +833,7 @@ function renderGantt(){
     const s = st(p.id);
     const cls = ["bar", p.core ? "" : "ext", p.opt ? "opt" : "", s !== "todo" ? s : "", selPhase === p.id ? "sel" : ""].join(" ");
     html += `<div class="g-row${p.last ? " core-end" : ""}">
-      <button class="g-name" type="button" data-phase="${p.id}" style="${p.key ? "font-weight:700" : ""}"><i class="dot ${s}"></i>${p.name}</button>
+      <button class="g-name" type="button" data-phase="${p.id}" style="${p.key ? "font-weight:700" : ""}"><i class="dot ${s}"></i>${p.name}<span class="g-cnt">${phaseCounts(p).done}/${phaseCounts(p).total}</span></button>
       <span class="g-h">${p.h} h</span>
       <div class="track"><button class="${cls}" type="button" data-phase="${p.id}" aria-label="${p.name}, semanas ${p.s} a ${p.e}" style="grid-column:${p.s} / ${p.e + 1}"></button></div>
     </div>`;
@@ -645,38 +841,44 @@ function renderGantt(){
   document.getElementById("gantt").innerHTML = html;
   renderPhase(); renderProgress();
 }
+function tasksHTML(p){
+  const firstPending = pendingTasks(p)[0];
+  let marked = false;
+  const li = t => {
+    const isNext = !t[1] && !marked && firstPending && t[0] === firstPending.t;
+    if(isNext) marked = true;
+    return `<li class="${t[1] ? "done" : ""}${isNext ? " next" : ""}"><span class="ck">${t[1] ? "✓" : "○"}</span><span>${t[0]}</span><span class="th">${fmtH(t[2])}</span></li>`;
+  };
+  return `<div class="tasks"><h4>Tareas · horas estimadas</h4>${p.tasks.map(g => `${g.g ? `<div class="grp">${g.g}</div>` : ""}<ul>${g.items.map(li).join("")}</ul>`).join("")}</div>`;
+}
 function renderPhase(){
   const p = PHASES.find(x => x.id === selPhase), s = st(p.id);
   const weeks = p.s === p.e ? `semana ${p.s}` : `semanas ${p.s}-${p.e}`;
   document.getElementById("phaseDetail").innerHTML = `
     <div class="pd-top">
       <div><h3 style="font-size:20px">${p.name}</h3><span class="meta">${p.h} h · ${weeks} · ${p.core ? "núcleo" : (p.opt ? "opcional" : "extensión")}</span></div>
-      <div class="seg status-seg" role="group" aria-label="Estado de la fase">
-        <button type="button" data-s="todo" aria-pressed="${s === "todo"}">Pendiente</button>
-        <button type="button" data-s="doing" aria-pressed="${s === "doing"}">En curso</button>
-        <button type="button" data-s="done" aria-pressed="${s === "done"}">Hecha</button>
-      </div>
-    </div>
+      <span class="count ${s}">${phaseCounts(p).done} / ${phaseCounts(p).total} tareas · ${fmtH(phaseCounts(p).hDone)} de ${fmtH(phaseCounts(p).hTotal)} · ${s === "done" ? "terminada" : (s === "doing" ? "en curso" : "pendiente")}</span>
+        </div>
     <p style="max-width:75ch">${p.goal}</p>
     <div class="pd-grid">
       <div class="box"><h4>Conceptos que tienes que poder explicar</h4><ul>${p.concepts.map(c => `<li>${c}</li>`).join("")}</ul></div>
       <div class="box warn"><h4>Errores típicos (aviso previo)</h4><ul>${p.errors.map(c => `<li>${c}</li>`).join("")}</ul></div>
       <div class="box"><h4>¿Cómo sabrías que funciona?</h4><p>${p.check}</p></div>
       <div class="box ok"><h4>Entregable</h4><p>${p.out}</p></div>
+      ${tasksHTML(p)}
     </div>`;
-  document.querySelectorAll(".status-seg [data-s]").forEach(b => b.addEventListener("click", () => {
-    status[p.id] = b.dataset.s; store.set("status", status); renderGantt();
-    if(b.dataset.s === "done") say(`¡${p.name} hecha! Commit, README y una entrada en el registro de decisiones.`, [880, 1175, 1568]);
-    else if(b.dataset.s === "doing") say(`Empezamos ${p.name}. Primero el concepto, luego el código.`, [700, 1050]);
-  }));
 }
 function renderProgress(){
-  const total = PHASES.reduce((a, p) => a + p.h, 0);
-  const done = PHASES.filter(p => st(p.id) === "done").reduce((a, p) => a + p.h, 0);
-  const pct = Math.round(done / total * 100);
+  const all = PHASES.flatMap(p => p.tasks.flatMap(g => g.items));
+  const done = all.filter(t => t[1]);
+  const pct = Math.round(done.length / all.length * 100);
+  const hDone = done.reduce((a, t) => a + t[2], 0), hTotal = all.reduce((a, t) => a + t[2], 0);
+  const hPct = Math.round(hDone / hTotal * 100);
   document.getElementById("progV").textContent = pct + " %";
-  document.getElementById("progN").textContent = `${done} de ${total} h hechas`;
+  document.getElementById("progN").textContent = `${done.length} de ${all.length} tareas hechas`;
   document.getElementById("progBar").style.width = pct + "%";
+  document.getElementById("progH").textContent = `${fmtH(hDone)} de ${fmtH(hTotal)} realizadas (${hPct} %, estimadas)`;
+  document.getElementById("progHBar").style.width = hPct + "%";
 }
 document.getElementById("gantt").addEventListener("click", e => {
   const b = e.target.closest("[data-phase]"); if(!b) return;
@@ -696,18 +898,11 @@ document.querySelectorAll(".card").forEach(c => c.addEventListener("click", () =
 
 /* Pendientes */
 function renderTodo(){
-  document.getElementById("todo").innerHTML = TODO.map(([id, t]) => `
-    <label for="chk-${id}"><input type="checkbox" id="chk-${id}" data-chk="${id}" ${checks[id] ? "checked" : ""}><span>${t}</span></label>`).join("");
-  document.querySelectorAll("[data-chk]").forEach(c => c.addEventListener("change", () => {
-    checks[c.dataset.chk] = c.checked; store.set("checks", checks);
-    if(c.checked){
-      const left = TODO.filter(([id]) => !checks[id]).length;
-      say(left ? `Hecho. Quedan ${left} antes de la Fase 1.` : "Todo listo. ¡A por la Fase 1!", [880, 1320]);
-    }
-  }));
+  document.getElementById("todo").innerHTML = TODO.map(([t, done], i) => `
+    <label for="chk-${i}"><input type="checkbox" id="chk-${i}" ${done ? "checked" : ""} disabled><span>${t}</span></label>`).join("");
 }
 
-renderRag(); renderGantt(); renderTodo();
+renderRag(); renderGantt(); renderTodo(); renderNext();
 </script>
 </body>
 </html>

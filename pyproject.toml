@@ -15,7 +15,20 @@ description = "Local RAG assistant over Spanish technical installation regulatio
 readme = "README.md"
 # Minimo de Python. Debe coincidir con el entorno conda y con la imagen Docker de la Fase 3.
 requires-python = ">=3.12"
-# Dependencias de ejecucion. Vacio por ahora; en la Fase 1 entran pymupdf, chromadb, etc.
-dependencies = []
+# Dependencias de ejecucion. Fase 1: pymupdf (extraccion de PDF); chromadb y el modelo de embeddings entraran despues.
+dependencies = [
+    "pymupdf",
+]
+
+[project.optional-dependencies]
+# Herramientas de desarrollo: no hacen falta para usar el paquete, solo para trabajar en él.
+# Se instalan con: python -m pip install -e ".[dev]"
+dev = [
+    "pytest",
+]
+
+[tool.pytest.ini_options]
+# Dónde buscar las pruebas, para que "python -m pytest" no recorra data/ ni otras carpetas.
+testpaths = ["tests"]
 
 # Con src layout, setuptools encuentra solo el paquete dentro de src/. No hace falta configurar nada mas.
