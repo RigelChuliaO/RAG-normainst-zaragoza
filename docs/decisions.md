@@ -6,6 +6,28 @@ One entry per decision: context, options considered, decision, and how we will k
 
 ---
 
+## ADR-006 · Embedding model: multilingual-e5-base first, compared with e5-small and bge-m3
+
+**Date:** 2026-11-14 · **Status:** accepted (to be confirmed by the Phase 2 evaluation)
+
+**Context.** The embedding model turns each chunk and each question into a vector. It must handle Spanish, fit the chunks in its window, and run on the CPU: the GPU is a GTX 1650 with 4 GB, of which about 2 GB are already used by the Windows desktop, and the rest is reserved for the LLM (ADR-002).
+
+**Options** (figures from the Hugging Face model cards).
+- `intfloat/multilingual-e5-small`: 384 dimensions, 512-token window, requires `query: ` / `passage: ` prefixes. Fastest.
+- `intfloat/multilingual-e5-base`: 768 dimensions, 512-token window, same prefixes.
+- `BAAI/bge-m3`: 568M parameters, 1024 dimensions, 8192-token window, no prefixes, also produces sparse (lexical) vectors.
+- Rejected: `paraphrase-multilingual-MiniLM-L12-v2`, common in tutorials, because its 128-token window would truncate most chunks.
+
+**Decision.** Start with **multilingual-e5-base** on the CPU, through `sentence-transformers`. Keep e5-small and bge-m3 as candidates to compare with the Phase 2 golden set. The model-specific details (name, prefixes, window) live in one place, `embeddings.py`, so switching models is one argument.
+
+**Why.** With 389 chunks, indexing on the CPU is a one-off cost of minutes; what repeats is embedding each question, and a ~278M-parameter model does it in a fraction of a second on the CPU. e5-base is a better model than e5-small without the size of bge-m3. Its required prefixes are a classic silent failure worth handling explicitly.
+
+**Risk.** The 512-token window: chunks are limited to 300 words plus the path prefix (ADR-005), and Spanish uses more tokens per word than English. The chunks are measured with the model's own tokenizer before indexing; if many exceed the window, either lower the word limit or switch to bge-m3.
+
+**How we will know it was wrong.** If Phase 2 shows that bge-m3 retrieves clearly better on the golden set, or that e5-small is just as good and faster, the comparison table goes in the README and this decision is updated.
+
+---
+
 ## ADR-005 · Structure-aware chunking of the RITE
 
 **Date:** 2026-11-13 · **Status:** accepted
@@ -17,17 +39,17 @@ One entry per decision: context, options considered, decision, and how we will k
 **Decision.** Structure-aware chunking (`ingest/chunk.py`):
 - One chunk per article, provision, IT section with its own text and definition in Appendix 1; one per appendix for the rest.
 - Headings with no text of their own (Part, Chapter, parent IT sections) only contribute their title to the path of their children.
-- Long units are split at their numbered paragraphs ("1.", "2.") and, if that is not enough, at paragraph boundaries, up to a **provisional limit of 300 words**. Each piece gets its own id (`#1`, `#2`) and the full path. Different units are never merged.
+- Long units are split at their numbered paragraphs ("1.", "2.") and, if that is not enough, at paragraph boundaries, up to a limit of **250 words** (initially 300; see the measurement below). Each piece gets its own id (`#1`, `#2`) and the full path. Different units are never merged.
 - Tables stay inside their section (`has_table`).
 - Each chunk keeps `text` (the body, for the prompt) and `embed_text` (path of titles + body, for the embedding).
 - Deterministic, readable ids: `RITE:art-2`, `RITE:IT-1.1.4.1.2`, `RITE:AP1:aire-de-expulsion`.
 
 **Why.** It is the unit the regulation itself uses and the one people cite: one chunk = one unit of meaning = one citation. The path prefix gives context to the 42 very short units without duplicating content as an overlap would. Stable ids make the Phase 2 golden set possible.
 
-**Result.** 389 chunks (median 99 words, maximum 300); 49 units split into pieces; 106 definitions (plus the appendix introduction); 25 chunks with tables. All 47 articles and all 130 leaf IT sections have a chunk. All body text is preserved (49,780 words in units = in chunks), and two runs produce the same file. Layout signals used: a new paragraph is indented (x0 ≈ 107.7) and a continuation line is not (x0 ≈ 90.7), which also joins headings that wrap onto a second line.
+**Result.** 417 chunks (median 109 words, maximum 250); 58 units split into pieces; 106 definitions (plus the appendix introduction); 26 chunks with tables. All 47 articles and all 130 leaf IT sections have a chunk. All body text is preserved (49,780 words in units = in chunks), and two runs produce the same file. Layout signals used: a new paragraph is indented (x0 ≈ 107.7) and a continuation line is not (x0 ≈ 90.7), which also joins headings that wrap onto a second line.
 
 **Consequences and known limitations.**
-- The limit is in words; Phase 1 piece 3 will measure it in tokens of the actual embedding model and adjust it.
+- **Measured in tokens (2026-11-14).** With 300 words, 7 of 389 chunks exceeded the 512-token window of multilingual-e5-base (up to 564 tokens): the Appendix 2 list of UNE standards (codes cost about 1.9 tokens per word, against 1.41 on average) and deep IT sections whose title path takes up to 96 tokens. The limit was lowered to 250 words. The word limit is only a cheap proxy: the guarantee is a check at indexing time with the model's own tokenizer, which stops with an error if any chunk does not fit instead of truncating silently.
 - The path prefix is long for deep IT sections (about 40 words): it uses a noticeable share of the window. If it hurts, keep only the last levels.
 - Tables are plain text with one cell per line: an LLM can read them, but a question about a specific value may not retrieve them well.
 - When a numbered paragraph is longer than the limit, a list ("a), b)…") can be separated from its lead-in sentence.

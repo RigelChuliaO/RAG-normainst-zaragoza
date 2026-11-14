@@ -8,6 +8,28 @@ Una entrada por decisión: contexto, opciones consideradas, decisión y cómo sa
 
 ---
 
+## ADR-006 · Modelo de embeddings: primero multilingual-e5-base, comparado con e5-small y bge-m3
+
+**Fecha:** 2026-11-14 · **Estado:** aceptada (a confirmar con la evaluación de la Fase 2)
+
+**Contexto.** El modelo de embeddings convierte cada chunk y cada pregunta en un vector. Tiene que manejar castellano, admitir los chunks en su ventana y funcionar en la CPU: la GPU es una GTX 1650 de 4 GB, de los que el escritorio de Windows ya ocupa unos 2, y el resto se reserva para el LLM (ADR-002).
+
+**Opciones** (datos de las fichas de los modelos en Hugging Face).
+- `intfloat/multilingual-e5-small`: 384 dimensiones, ventana de 512 tokens, exige los prefijos `query: ` / `passage: `. El más rápido.
+- `intfloat/multilingual-e5-base`: 768 dimensiones, ventana de 512 tokens, los mismos prefijos.
+- `BAAI/bge-m3`: 568 M de parámetros, 1024 dimensiones, ventana de 8192 tokens, sin prefijos; además produce vectores *sparse* (léxicos).
+- Descartado: `paraphrase-multilingual-MiniLM-L12-v2`, muy habitual en tutoriales, porque su ventana de 128 tokens truncaría la mayoría de los chunks.
+
+**Decisión.** Empezar con **multilingual-e5-base** en la CPU, mediante `sentence-transformers`. Mantener e5-small y bge-m3 como candidatos para comparar con el golden set de la Fase 2. Lo propio de cada modelo (nombre, prefijos, ventana) vive en un solo sitio, `embeddings.py`, así que cambiar de modelo es un argumento.
+
+**Por qué.** Con 389 chunks, indexar en la CPU es un coste de minutos que se paga una vez; lo que se repite es convertir cada pregunta en vector, y un modelo de unos 278 M de parámetros lo hace en la CPU en una fracción de segundo. e5-base es mejor que e5-small sin el tamaño de bge-m3. Sus prefijos obligatorios son un fallo silencioso clásico que conviene tratar de forma explícita.
+
+**Riesgo.** La ventana de 512 tokens: los chunks están limitados a 300 palabras más el prefijo de ruta (ADR-005), y el castellano gasta más tokens por palabra que el inglés. Se miden los chunks con el tokenizer del propio modelo antes de indexar; si muchos superan la ventana, se baja el límite de palabras o se pasa a bge-m3.
+
+**Cómo sabremos si era un error.** Si la Fase 2 muestra que bge-m3 recupera claramente mejor en el golden set, o que e5-small es igual de bueno y más rápido, la tabla comparativa va al README y se actualiza esta decisión.
+
+---
+
 ## ADR-005 · Chunking por estructura del RITE
 
 **Fecha:** 2026-11-13 · **Estado:** aceptada
@@ -19,17 +41,17 @@ Una entrada por decisión: contexto, opciones consideradas, decisión y cómo sa
 **Decisión.** Chunking por estructura (`ingest/chunk.py`):
 - Un chunk por artículo, disposición, sección IT con texto propio y definición del Apéndice 1; uno por apéndice para el resto.
 - Los encabezados sin texto propio (Parte, Capítulo, IT padres) solo aportan su título a la ruta de sus hijos.
-- Las unidades largas se parten por sus apartados numerados ("1.", "2.") y, si no basta, por párrafos, hasta un **límite provisional de 300 palabras**. Cada trozo lleva un id propio (`#1`, `#2`) y la ruta completa. Nunca se juntan unidades distintas.
+- Las unidades largas se parten por sus apartados numerados ("1.", "2.") y, si no basta, por párrafos, hasta un límite de **250 palabras** (al principio 300; ver la medida más abajo). Cada trozo lleva un id propio (`#1`, `#2`) y la ruta completa. Nunca se juntan unidades distintas.
 - Las tablas van dentro de su sección (`has_table`).
 - Cada chunk guarda `text` (el cuerpo, para el prompt) y `embed_text` (ruta de títulos + cuerpo, para el embedding).
 - Ids deterministas y legibles: `RITE:art-2`, `RITE:IT-1.1.4.1.2`, `RITE:AP1:aire-de-expulsion`.
 
 **Por qué.** Es la unidad que usa el propio reglamento y la que se cita: un chunk = una unidad de sentido = una cita. El prefijo de ruta da contexto a las 42 unidades muy cortas sin duplicar contenido, como haría un solapamiento. Los ids estables hacen posible el golden set de la Fase 2.
 
-**Resultado.** 389 chunks (mediana de 99 palabras, máximo 300); 49 unidades partidas en trozos; 106 definiciones (más la introducción del apéndice); 25 chunks con tabla. Los 47 artículos y las 130 secciones IT hoja tienen su chunk. Se conserva todo el texto de cuerpo (49 780 palabras en las unidades = en los chunks), y dos ejecuciones producen el mismo fichero. Señales de maquetación usadas: un párrafo nuevo va sangrado (x0 ≈ 107,7) y una línea de continuación no (x0 ≈ 90,7), lo que además permite unir los títulos que ocupan dos líneas.
+**Resultado.** 417 chunks (mediana de 109 palabras, máximo 250); 58 unidades partidas en trozos; 106 definiciones (más la introducción del apéndice); 26 chunks con tabla. Los 47 artículos y las 130 secciones IT hoja tienen su chunk. Se conserva todo el texto de cuerpo (49 780 palabras en las unidades = en los chunks), y dos ejecuciones producen el mismo fichero. Señales de maquetación usadas: un párrafo nuevo va sangrado (x0 ≈ 107,7) y una línea de continuación no (x0 ≈ 90,7), lo que además permite unir los títulos que ocupan dos líneas.
 
 **Consecuencias y limitaciones conocidas.**
-- El límite está en palabras; en la pieza 3 de la Fase 1 se medirá en tokens del modelo de embeddings real y se ajustará.
+- **Medido en tokens (14/11/2026).** Con 300 palabras, 7 de 389 chunks superaban la ventana de 512 tokens de multilingual-e5-base (hasta 564 tokens): la lista de normas UNE del Apéndice 2 (los códigos cuestan unos 1,9 tokens por palabra, frente a 1,41 de media) y secciones IT profundas cuya ruta de títulos ocupa hasta 96 tokens. Se bajó el límite a 250 palabras. El límite en palabras es solo una aproximación barata: la garantía es una comprobación al indexar con el tokenizer del propio modelo, que para con un error si algún chunk no cabe en lugar de truncarlo en silencio.
 - El prefijo de ruta es largo en las IT profundas (unas 40 palabras): ocupa una parte apreciable de la ventana. Si perjudica, se dejan solo los últimos niveles.
 - Las tablas son texto plano con una celda por línea: un LLM puede leerlas, pero una pregunta sobre un valor concreto puede no recuperarlas bien.
 - Si un apartado numerado supera el límite, una lista ("a), b)…") puede quedar separada de su frase de introducción.

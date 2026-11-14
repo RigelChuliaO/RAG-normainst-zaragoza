@@ -418,7 +418,7 @@ footer{color:var(--muted); font-size:13px}
    Cada tarea es [texto, hecha, horas estimadas]. Las horas de cada fase suman sus h. El estado de cada fase se calcula a partir de sus tareas:
    todas hechas = terminada; alguna hecha = en curso; ninguna = pendiente.
    Actualizado el 13 de noviembre de 2026. */
-const UPDATED = "13 de noviembre de 2026";
+const UPDATED = "14 de noviembre de 2026";
 const PHASES = [
   {id:"f0", name:"F0 · Repositorio", h:2, s:1, e:1, core:true,
    goal:"Repositorio en GitHub, entorno conda solo para el intérprete con dependencias en pyproject.toml, paquete instalable con src layout, .gitignore con .env, .gitattributes, licencia MIT, README inicial y registro de decisiones.",
@@ -443,7 +443,7 @@ const PHASES = [
    check:"Cinco preguntas cuya respuesta conoces, revisando a mano qué trozos se recuperaron, no solo la respuesta.",
    out:"Script que responde citando el artículo, detrás de answer(question) -> Answer.",
    tasks:[
-    {g:"Pieza 1 · Extracción del PDF", items:[
+    {g:"Pieza 1 · Extracción del PDF (commit c30e6b6)", items:[
      ["Elegir el corpus: RITE consolidado (BOE-A-2007-15820, versión 02/08/2022)", true, 0.25],
      ["Analizar la anatomía del PDF: portada, índice, cabecera, pie, artículos, IT, tablas, apéndices", true, 0.5],
      ["ingest/extract.py: líneas limpias con su formato → data/interim/*.lines.jsonl + .meta.json", true, 1],
@@ -457,18 +457,18 @@ const PHASES = [
      ["Explicar con tus palabras: bold_ratio, el error de split_front_matter, el sha256", true, 0.5],
      ["Anotar en decisions.md: corpus y versión, apéndices como imagen, notas de modificación ausentes", true, 0.25],
      ["Commit de la pieza 1 (c30e6b6, subido a main)", true, 0.25]]},
-    {g:"Pieza 2 · Chunking por estructura", items:[
+    {g:"Pieza 2 · Chunking por estructura (commit d07eb06)", items:[
      ["Diseño: unidad de chunk, ruta de ancestros como prefijo, tablas pegadas a su sección", true, 0.5],
      ["ingest/chunk.py → data/processed/chunks.jsonl (id, doc, path, title, page_start, text)", true, 1.25],
      ["Detectar referencias cruzadas («artículo 18», «IT 1.2.4») y guardarlas en refs", true, 0.5],
      ["Tests del chunker: ningún chunk sin cuerpo, todos los artículos e IT presentes", true, 0.5],
      ["Inspeccionar a mano una muestra de chunks (corto, largo, con tabla)", true, 0.25]]},
     {g:"Pieza 3 · Embeddings e índice", items:[
-     ["nvidia-smi: modelo de GPU, VRAM libre y versión de CUDA", false, 0.1],
-     ["Concepto: qué es un embedding, cómo se elige el modelo, prefijos query:/passage: de E5", false, 0.5],
-     ["Elegir 2-3 modelos candidatos (multilingual-e5-small/base, bge-m3) con su ventana de tokens", false, 0.4],
-     ["Medir la longitud de los chunks en tokens; partir los que superen la ventana", false, 0.5],
-     ["Indexar en Chroma embebido, con los metadatos para citar", false, 1]]},
+     ["nvidia-smi: GTX 1650, 4 GB, CUDA 13.3 (~2 GB ya ocupados por el escritorio)", true, 0.1],
+     ["Concepto: qué es un embedding, cómo se elige el modelo, prefijos query:/passage: de E5", true, 0.5],
+     ["Elegir modelos: e5-base para empezar; e5-small y bge-m3 para comparar (ADR-006)", true, 0.4],
+     ["Medir los chunks en tokens (e5-base): con 250 palabras, 0 de 417 pasan de 512 (máx. 483)", true, 0.5],
+     ["Indexar en Chroma: 417 chunks en 83 s, coseno, idempotente, con red de seguridad", true, 1]]},
     {g:"Pieza 4 · Recuperación", items:[
      ["Ejercicio: similitud del coseno a mano con NumPy y comparar con Chroma", false, 0.5],
      ["Búsqueda top-k con Chroma", false, 0.25],
@@ -679,9 +679,10 @@ const NOS = [
 
 const TODO = [
   ["Corpus inicial: RITE consolidado (BOE-A-2007-15820, versión 02/08/2022)", true],
-  ["Modelo exacto de la GPU: nvidia-smi con modelo, VRAM libre y versión de CUDA", false],
-  ["Modelo de embeddings: 2-3 candidatos; se decide con la evaluación, no a ojo", false],
+  ["GPU: GTX 1650, 4 GB, CUDA 13.3; ~2 GB libres con el escritorio abierto. Embeddings en CPU", true],
+  ["Modelo de embeddings: multilingual-e5-base en CPU; comparar en la F2 (ADR-006)", true],
   ["Tablas en los chunks: en la F1, texto tal cual + título; mejora medible después", true],
+  ["VRAM antes de la pieza 5: ~2 GB ocupados por el escritorio; liberar (cerrar programas, apps a la gráfica Intel) y medir si Qwen 3-4B cabe", false],
   ["Relaciones «modifica» (F6): no están en el PDF; HTML o análisis del BOE", false],
   ["Lockfile con versiones exactas (F3, ADR-003)", false]
 ];

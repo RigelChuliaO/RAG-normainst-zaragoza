@@ -166,12 +166,12 @@ def test_ids_repetidos_paran_con_error():
 REPO_ROOT = Path(__file__).resolve().parents[1]
 LINES_PATH = REPO_ROOT / "data" / "interim" / "BOE-A-2007-15820-consolidado.lines.jsonl"
 
-# Cifras de referencia comprobadas el 13/11/2026 con MAX_WORDS = 300 (ADR-005).
+# Cifras de referencia comprobadas el 14/11/2026 con MAX_WORDS = 250 (ADR-005).
 # Si cambian a propósito (otro límite, otra versión del RITE), se actualizan aquí.
-EXPECTED_CHUNKS = 389
+EXPECTED_CHUNKS = 417
 EXPECTED_ARTICLES = 47
 EXPECTED_DEFINITIONS = 106
-MAX_WORDS = 300
+MAX_WORDS = 250
 
 
 @pytest.fixture(scope="module")

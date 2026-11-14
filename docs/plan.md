@@ -6,7 +6,7 @@
 
 > Si retomas el proyecto en una conversación nueva, empieza por aquí.
 
-**Fase actual:** **Fase 1**. Pieza 1 (extracción) cerrada en `c30e6b6`. Pieza 2 (chunking): `chunk.py` hecho, revisado y con 16 pruebas (ADR-005); falta el commit. Después, pieza 3 (embeddings).
+**Fase actual:** **Fase 1**. Pieza 1 (extracción) cerrada en `c30e6b6` y pieza 2 (chunking, ADR-005) cerrada en `d07eb06`, ambas subidas a `main`. En curso la **pieza 3 (embeddings e índice)**: modelo elegido (ADR-006), chunks medidos en tokens e índice en Chroma creado (417 chunks); falta el commit. Después, pieza 4 (recuperación).
 
 **Siguiente tarea:** la primera casilla sin marcar de la Fase 1, en [Tareas por fase](#tareas-por-fase).
 
@@ -17,7 +17,7 @@ Leyenda: ✅ terminada · 🔄 en curso · ⬜ sin empezar. En las listas, `[x]`
 | Fase | Estado | Tareas hechas | Horas (estimadas) |
 | --- | --- | --- | --- |
 | F0 · Repositorio y esqueleto | ✅ | 9 / 9 | 2 / 2 h |
-| F1 · RAG mínimo en Python puro | 🔄 | 18 / 31 | 8,35 / 14 h |
+| F1 · RAG mínimo en Python puro | 🔄 | 23 / 31 | 10,85 / 14 h |
 | F2 · Evaluación | ⬜ | 0 / 10 | 0 / 8 h |
 | F2B · Port a LangChain | ⬜ | 0 / 6 | 0 / 6 h |
 | F3 · Docker | ⬜ | 0 / 11 | 0 / 12 h |
@@ -26,7 +26,7 @@ Leyenda: ✅ terminada · 🔄 en curso · ⬜ sin empezar. En las listas, `[x]`
 | F6 · Grafo de conocimiento | ⬜ | 0 / 8 | 0 / 20 h |
 | F7 · Function calling y agentes | ⬜ | 0 / 7 | 0 / 12 h |
 | F8 · Airflow (opcional) | ⬜ | 0 / 6 | 0 / 20 h |
-| **Total** | | **27 / 102** | **10,35 / 112 h** |
+| **Total** | | **32 / 102** | **12,85 / 112 h** |
 
 **Cómo se trabaja en local (para no repetir errores ya cometidos):**
 
@@ -40,9 +40,10 @@ Leyenda: ✅ terminada · 🔄 en curso · ⬜ sin empezar. En las listas, `[x]`
 **Decisiones pendientes:**
 
 - [x] **Corpus inicial:** RITE (RD 1027/2007, `BOE-A-2007-15820`), texto consolidado del BOE en PDF, última modificación 02/08/2022.
-- [ ] **Modelo exacto de la GPU:** la VRAM ya se sabe (4 GB, ADR-002); falta `nvidia-smi` con modelo, VRAM libre y versión de CUDA.
-- [ ] **Modelo de embeddings:** 2-3 candidatos multilingües pequeños o medianos; se decide con la evaluación, no a ojo.
+- [x] **Modelo exacto de la GPU:** NVIDIA GeForce GTX 1650, 4096 MiB, driver 610.91, CUDA 13.3. Sin modelos cargados ya hay unos 2 GB ocupados (escritorio de Windows, navegador): libres, unos 2 GB. Embeddings en CPU.
+- [x] **Modelo de embeddings:** empezar con `multilingual-e5-base` en CPU; comparar con e5-small y bge-m3 en la Fase 2 (ADR-006).
 - [x] **Tablas en los chunks:** en la Fase 1, texto tal cual + título de la tabla; mejora medible después.
+- [ ] **VRAM antes de la pieza 5:** con el escritorio abierto hay ~2 GB ocupados (30 procesos: Oculus, Steam, Unity Hub, ChatGPT, Copilot, Autodesk, navegadores…). Liberarla cerrando programas y asignando las apps de escritorio a la gráfica Intel (Configuración → Pantalla → Gráficos), y medir si Qwen 3-4B en Q4 cabe entero; si no, probar Qwen3 1,7B.
 - [ ] **Relaciones "modifica" (Fase 6):** no están en el PDF consolidado; hay que sacarlas del HTML o del análisis del BOE.
 - [ ] **Pendiente técnico de la Fase 3:** lockfile con versiones exactas (ver ADR-003).
 
@@ -196,11 +197,13 @@ Se marcan con `[x]` al terminarlas, y se actualiza la tabla de [Progreso](#progr
 
 **Pieza 3 — Embeddings e índice**
 
-- [ ] `nvidia-smi`: modelo de GPU, VRAM libre y versión de CUDA. · *0,1 h*
-- [ ] Concepto: qué es un embedding, cómo se elige el modelo, prefijos `query:`/`passage:` de E5. · *0,5 h*
-- [ ] Elegir 2-3 modelos candidatos (p. ej. multilingual-e5-small/base, bge-m3) con su ventana de tokens. · *0,4 h*
-- [ ] Medir la longitud de los chunks en tokens del modelo; partir los que superen la ventana. · *0,5 h*
-- [ ] Indexar en Chroma embebido (`chromadb`), con los metadatos para citar. · *1 h*
+- [x] `nvidia-smi`: modelo de GPU, VRAM libre y versión de CUDA (GTX 1650, 4 GB, CUDA 13.3; ~2 GB ya ocupados por el escritorio). · *0,1 h*
+- [x] Concepto: qué es un embedding, cómo se elige el modelo, prefijos `query:`/`passage:` de E5. · *0,5 h*
+- [x] Elegir 2-3 modelos candidatos (p. ej. multilingual-e5-small/base, bge-m3) con su ventana de tokens: **e5-base** para empezar; e5-small y bge-m3 para comparar en la Fase 2 (ADR-006). · *0,4 h*
+- [x] Medir la longitud de los chunks en tokens del modelo; partir los que superen la ventana. · *0,5 h*
+  *Primera medida (e5-base, 300 palabras): 1,41 tokens/palabra, 7 de 389 chunks por encima de 512 (Apéndice 2 con códigos UNE, IT profundas con ruta de hasta 96 tokens). Límite bajado a 250 palabras → 417 chunks: **0 por encima de 512**, máximo 483 tokens, p95 410, mediana 194.*
+- [x] Indexar en Chroma embebido (`chromadb`), con los metadatos para citar. **Red de seguridad:** antes de indexar, comprobar cada chunk con el tokenizer del modelo y parar con error si alguno supera la ventana. · *1 h*
+  *Hecho (14/11): `store.py`, colección `rite_e5-base` en `chroma/`, 417 chunks en 83 s en CPU. Prueba «¿Qué temperatura operativa se exige en invierno?» → 1.º IT 1.1.4.1.2 (la de la tabla 1.4.1.1), similitud 0,843.*
 
 **Pieza 4 — Recuperación**
 
@@ -348,8 +351,8 @@ RAG/
 │   │   ├── extract.py             # ✅ PDF → líneas limpias con formato
 │   │   ├── inspect_extraction.py  # ✅ inspector visual PDF frente a lo extraído
 │   │   └── chunk.py               # ✅ troceado por estructura (lo reutiliza la 2B)
-│   ├── embeddings.py
-│   ├── store.py
+│   ├── embeddings.py        # modelos de embeddings y medida en tokens
+│   ├── store.py             # índice en Chroma (coseno, idempotente, red de seguridad)
 │   ├── generate.py
 │   └── pipeline.py          # answer(question) -> Answer
 ├── langchain_port/          # Fase 2B
@@ -360,7 +363,7 @@ RAG/
 │   └── results/             # una ejecución por fichero, con fecha
 └── tests/
     ├── test_extract.py      # ✅ 12 pruebas del extractor
-    └── test_chunk.py        # ✅ 16 pruebas del chunker
+    └── test_chunk.py        # ✅ 16 pruebas del chunker (417 chunks con 250 palabras)
 ```
 
 El port a LangChain importa el chunking de `src/rag_normainst/ingest/chunk.py` en vez de usar un splitter propio del framework. Así la comparación mide lo que cambia el framework, no un troceado distinto.

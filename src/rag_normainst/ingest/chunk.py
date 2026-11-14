@@ -40,9 +40,12 @@ import unicodedata
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
-# Límite provisional de palabras de cuerpo por chunk. Con el prefijo de ruta debe
-# caber en unos 512 tokens. Se medirá en tokens reales en la pieza 3 (embeddings).
-MAX_WORDS = 300
+# Límite de palabras de cuerpo por chunk: es una aproximación barata del límite real,
+# la ventana del modelo de embeddings (512 tokens en e5-base). Con 300 palabras, 7
+# chunks pasaban de 512 tokens (texto con códigos UNE ≈1,9 tokens/palabra; rutas de
+# hasta 96 tokens). Con 250 caben. La garantía no es este número: al indexar se
+# comprueba cada chunk con el tokenizer real y se para si alguno no cabe (ADR-005).
+MAX_WORDS = 250
 
 # x0 a partir del cual una línea de cuerpo empieza párrafo (sangría).
 INDENT_X0 = 100.0

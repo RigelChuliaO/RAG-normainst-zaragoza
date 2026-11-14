@@ -15,9 +15,11 @@ description = "Local RAG assistant over Spanish technical installation regulatio
 readme = "README.md"
 # Minimo de Python. Debe coincidir con el entorno conda y con la imagen Docker de la Fase 3.
 requires-python = ">=3.12"
-# Dependencias de ejecucion. Fase 1: pymupdf (extraccion de PDF); chromadb y el modelo de embeddings entraran despues.
+# Dependencias de ejecucion. Fase 1: pymupdf (extraccion de PDF) y sentence-transformers (embeddings, trae transformers y torch). chromadb (almacen vectorial embebido).
 dependencies = [
     "pymupdf",
+    "sentence-transformers",
+    "chromadb",
 ]
 
 [project.optional-dependencies]
