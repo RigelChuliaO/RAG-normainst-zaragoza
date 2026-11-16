@@ -469,15 +469,15 @@ const PHASES = [
      ["Elegir modelos: e5-base para empezar; e5-small y bge-m3 para comparar (ADR-006)", true, 0.4],
      ["Medir los chunks en tokens (e5-base): con 250 palabras, 0 de 417 pasan de 512 (máx. 483)", true, 0.5],
      ["Indexar en Chroma: 417 chunks en 83 s, coseno, idempotente, con red de seguridad", true, 1]]},
-    {g:"Pieza 4 · Recuperación", items:[
+    {g:"Pieza 4 · Recuperación (commit ae8cb8e)", items:[
      ["Ejercicio: coseno a mano con NumPy = Chroma (mismo orden, diferencia 0)", true, 0.5],
      ["Búsqueda top-k con Chroma (retrieve.py)", true, 0.25],
      ["5 preguntas reales: hit@1 2/4, hit@5 3/4; falla la del número de IT; semilla en eval/golden_seed.jsonl", true, 0.5]]},
     {g:"Pieza 5 · Generación y entregable", items:[
-     ["Prompt con los chunks etiquetados; la cita la construye el código desde los metadatos", false, 0.5],
-     ["Cliente openai contra Ollama /v1 (Qwen 3-4B en Q4)", false, 0.25],
-     ["answer(question) -> Answer (texto, citas, ids recuperados)", false, 0.5],
-     ["Script de línea de comandos que responde citando el artículo", false, 0.25],
+     ["Prompt con los chunks etiquetados; la cita la construye el código desde los metadatos", true, 0.5],
+     ["Cliente openai contra Ollama /v1: qwen3:4b-instruct (ADR-007)", true, 0.25],
+     ["answer(question) -> Answer (texto, citas, ids recuperados)", true, 0.5],
+     ["Script de línea de comandos: 4 preguntas, 3 bien y 1 incompleta (sin la IT 3.8); 12-21 s", true, 0.25],
      ["README (inglés) y decisions.md actualizados; commit de la Fase 1", false, 0.4]]}]},
   {id:"f2", name:"F2 · Evaluación", h:8, s:3, e:3, core:true, key:true,
    goal:"Golden set de 30-50 preguntas escritas por ti, con artículo correcto y respuesta esperada. Recuperación y generación se miden por separado.",
@@ -682,7 +682,8 @@ const TODO = [
   ["GPU: GTX 1650, 4 GB, CUDA 13.3; ~2 GB libres con el escritorio abierto. Embeddings en CPU", true],
   ["Modelo de embeddings: multilingual-e5-base en CPU; comparar en la F2 (ADR-006)", true],
   ["Tablas en los chunks: en la F1, texto tal cual + título; mejora medible después", true],
-  ["VRAM antes de la pieza 5: ~2 GB ocupados por el escritorio; liberar (cerrar programas, apps a la gráfica Intel) y medir si Qwen 3-4B cabe", false],
+  ["VRAM (opcional): el 4b-instruct va repartido CPU/GPU en 12-21 s; liberar VRAM lo aceleraría", false],
+  ["Completitud de las respuestas: fiel pero escueto; medir en la Fase 2 y probar few-shot o re-ranking", false],
   ["Relaciones «modifica» (F6): no están en el PDF; HTML o análisis del BOE", false],
   ["Lockfile con versiones exactas (F3, ADR-003)", false]
 ];

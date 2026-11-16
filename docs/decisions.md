@@ -6,6 +6,31 @@ One entry per decision: context, options considered, decision, and how we will k
 
 ---
 
+## ADR-007 · Generator: qwen3:4b-instruct through Ollama, with a citation-only prompt
+
+**Date:** 2026-11-16 · **Status:** accepted (to be confirmed by the Phase 2 evaluation)
+
+**Context.** ADR-002 chose a 3-4B Qwen model in Q4. In Ollama, the `qwen3:4b` tag is now the *Thinking-2507* variant: it always reasons before answering, emits a lone `</think>`, and `--think=false` does not turn it off. With about 2 GB of free VRAM, the model loads split between CPU and GPU, with a 4096-token context window.
+
+**Options.** `qwen3:4b` (thinking), `qwen3:4b-instruct` (Instruct-2507, no reasoning), `qwen3:1.7b` (hybrid, reasons by default).
+
+**Decision.** Use **`qwen3:4b-instruct`** at temperature 0 through the OpenAI-compatible endpoint (`/v1`) with the `openai` client. The prompt numbers the fragments `[1]…[k]`; the model only writes those labels and the code turns them into citations from the chunk metadata, so the model cannot invent an article number. If the fragments do not contain the answer, it must reply exactly "No consta en el RITE.". Questions that name an IT or an article fetch that chunk by id first (fixes golden-seed q04). If the prompt fills the 4096-token window, the code stops with an error instead of letting Ollama truncate silently.
+
+**Evidence** (4 manual questions, warm model).
+| | qwen3:4b-instruct | qwen3:1.7b |
+| --- | --- | --- |
+| "What is the RITE?" | correct, cites Art. 1 (without RAG it invented a decree) | – |
+| Winter operative temperature | correct (21–23 °C, IT 1.1.4.1.2), but omits humidity and IT 3.8 | mixes IT 3.8 with design data, **no citation**, 571 output tokens |
+| "What does IT 1.2.4.7.4 say?" | correct, found by id lookup | – |
+| Cable cross-section (not in the RITE) | "No consta" | "No consta" (332 tokens of reasoning) |
+| Generation time | 12–21 s (~110 prompt tok/s, ~20 output tok/s) | 12–20 s |
+
+The 1.7b model is not faster end to end, because its reasoning tokens cancel out its speed, and it breaks the citation rule. The 4b-instruct model is faithful but sometimes incomplete; asking for "concise but complete" answers did not fix that.
+
+**How we will know it was wrong.** If Phase 2 shows answers that are faithful but miss conditions present in the retrieved fragments (completeness), try few-shot examples in the prompt, fewer and better-ranked fragments (re-ranking, Phase 5), or a larger model through the same client.
+
+---
+
 ## ADR-006 · Embedding model: multilingual-e5-base first, compared with e5-small and bge-m3
 
 **Date:** 2026-11-14 · **Status:** accepted (to be confirmed by the Phase 2 evaluation)

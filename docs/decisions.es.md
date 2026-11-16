@@ -8,6 +8,31 @@ Una entrada por decisión: contexto, opciones consideradas, decisión y cómo sa
 
 ---
 
+## ADR-007 · Generador: qwen3:4b-instruct en Ollama, con un prompt que solo deja citar etiquetas
+
+**Fecha:** 2026-11-16 · **Estado:** aceptada (a confirmar con la evaluación de la Fase 2)
+
+**Contexto.** La ADR-002 eligió un Qwen de 3-4B en Q4. En Ollama, la etiqueta `qwen3:4b` es ahora la variante *Thinking-2507*: siempre razona antes de responder, emite un `</think>` suelto y `--think=false` no lo desactiva. Con unos 2 GB de VRAM libres, el modelo se carga repartido entre CPU y GPU, con una ventana de 4096 tokens.
+
+**Opciones.** `qwen3:4b` (razonador), `qwen3:4b-instruct` (Instruct-2507, sin razonamiento), `qwen3:1.7b` (híbrido, razona por defecto).
+
+**Decisión.** Usar **`qwen3:4b-instruct`** con temperatura 0, a través del endpoint compatible con OpenAI (`/v1`) y el cliente `openai`. El prompt numera los fragmentos `[1]…[k]`; el modelo solo escribe esas etiquetas y el código las convierte en citas a partir de los metadatos, así que no puede inventarse un número de artículo. Si los fragmentos no contienen la respuesta, debe contestar exactamente «No consta en el RITE.». Si la pregunta nombra una IT o un artículo, ese chunk se busca primero por id (arregla la q04 de la semilla). Si el prompt llena la ventana de 4096 tokens, el código para con un error en vez de dejar que Ollama recorte sin avisar.
+
+**Evidencia** (4 preguntas a mano, con el modelo ya cargado).
+| | qwen3:4b-instruct | qwen3:1.7b |
+| --- | --- | --- |
+| «¿Qué es el RITE?» | correcta, cita el art. 1 (sin RAG se inventó un decreto) | – |
+| Temperatura operativa en invierno | correcta (21–23 °C, IT 1.1.4.1.2), pero omite la humedad y la IT 3.8 | mezcla la IT 3.8 con datos de diseño, **sin cita**, 571 tokens de salida |
+| «¿Qué dice la IT 1.2.4.7.4?» | correcta, encontrada por id | – |
+| Sección de cable (no está en el RITE) | «No consta» | «No consta» (332 tokens de razonamiento) |
+| Tiempo de generación | 12–21 s (~110 tok/s leyendo el prompt, ~20 tok/s escribiendo) | 12–20 s |
+
+El 1.7b no es más rápido en total, porque sus tokens de razonamiento anulan su velocidad, y además rompe la regla de citar. El 4b-instruct es fiel pero a veces incompleto; pedir respuestas «concisas pero completas» no lo ha arreglado.
+
+**Cómo sabremos que era un error.** Si la Fase 2 muestra respuestas fieles que se dejan condiciones presentes en los fragmentos recuperados (completitud), probar ejemplos *few-shot* en el prompt, menos fragmentos y mejor ordenados (re-ranking, Fase 5) o un modelo mayor con el mismo cliente.
+
+---
+
 ## ADR-006 · Modelo de embeddings: primero multilingual-e5-base, comparado con e5-small y bge-m3
 
 **Fecha:** 2026-11-14 · **Estado:** aceptada (a confirmar con la evaluación de la Fase 2)

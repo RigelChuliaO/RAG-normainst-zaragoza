@@ -6,7 +6,7 @@
 
 > Si retomas el proyecto en una conversación nueva, empieza por aquí.
 
-**Fase actual:** **Fase 1**. Piezas cerradas y subidas a `main`: 1 extracción (`c30e6b6`, ADR-004), 2 chunking (`d07eb06`, ADR-005) y 3 embeddings e índice (`af06419`, ADR-006). En curso la **pieza 4 (recuperación)**.
+**Fase actual:** **Fase 1**. Piezas cerradas y subidas a `main`: 1 extracción (`c30e6b6`, ADR-004), 2 chunking (`d07eb06`, ADR-005) y 3 embeddings e índice (`af06419`, ADR-006) y 4 recuperación (`ae8cb8e`). **Pieza 5 (generación)** funcionando (ADR-007): falta el commit que cierra la Fase 1.
 
 **Siguiente tarea:** la primera casilla sin marcar de la Fase 1, en [Tareas por fase](#tareas-por-fase).
 
@@ -17,7 +17,7 @@ Leyenda: ✅ terminada · 🔄 en curso · ⬜ sin empezar. En las listas, `[x]`
 | Fase | Estado | Tareas hechas | Horas (estimadas) |
 | --- | --- | --- | --- |
 | F0 · Repositorio y esqueleto | ✅ | 9 / 9 | 2 / 2 h |
-| F1 · RAG mínimo en Python puro | 🔄 | 26 / 31 | 12,1 / 14 h |
+| F1 · RAG mínimo en Python puro | 🔄 | 30 / 31 | 13,6 / 14 h |
 | F2 · Evaluación | ⬜ | 0 / 10 | 0 / 8 h |
 | F2B · Port a LangChain | ⬜ | 0 / 6 | 0 / 6 h |
 | F3 · Docker | ⬜ | 0 / 11 | 0 / 12 h |
@@ -26,7 +26,7 @@ Leyenda: ✅ terminada · 🔄 en curso · ⬜ sin empezar. En las listas, `[x]`
 | F6 · Grafo de conocimiento | ⬜ | 0 / 8 | 0 / 20 h |
 | F7 · Function calling y agentes | ⬜ | 0 / 7 | 0 / 12 h |
 | F8 · Airflow (opcional) | ⬜ | 0 / 6 | 0 / 20 h |
-| **Total** | | **35 / 102** | **14,1 / 112 h** |
+| **Total** | | **39 / 102** | **15,6 / 112 h** |
 
 **Cómo se trabaja en local (para no repetir errores ya cometidos):**
 
@@ -43,7 +43,8 @@ Leyenda: ✅ terminada · 🔄 en curso · ⬜ sin empezar. En las listas, `[x]`
 - [x] **Modelo exacto de la GPU:** NVIDIA GeForce GTX 1650, 4096 MiB, driver 610.91, CUDA 13.3. Sin modelos cargados ya hay unos 2 GB ocupados (escritorio de Windows, navegador): libres, unos 2 GB. Embeddings en CPU.
 - [x] **Modelo de embeddings:** empezar con `multilingual-e5-base` en CPU; comparar con e5-small y bge-m3 en la Fase 2 (ADR-006).
 - [x] **Tablas en los chunks:** en la Fase 1, texto tal cual + título de la tabla; mejora medible después.
-- [ ] **VRAM antes de la pieza 5:** con el escritorio abierto hay ~2 GB ocupados (30 procesos: Oculus, Steam, Unity Hub, ChatGPT, Copilot, Autodesk, navegadores…). Liberarla cerrando programas y asignando las apps de escritorio a la gráfica Intel (Configuración → Pantalla → Gráficos), y medir si Qwen 3-4B en Q4 cabe entero; si no, probar Qwen3 1,7B.
+- [ ] **VRAM (opcional):** el 4b-instruct funciona repartido CPU/GPU en 12-21 s; liberar VRAM lo aceleraría. Antes: con el escritorio abierto hay ~2 GB ocupados (30 procesos: Oculus, Steam, Unity Hub, ChatGPT, Copilot, Autodesk, navegadores…). Liberarla cerrando programas y asignando las apps de escritorio a la gráfica Intel (Configuración → Pantalla → Gráficos), y medir si Qwen 3-4B en Q4 cabe entero; si no, probar Qwen3 1,7B.
+- [ ] **Completitud de las respuestas (Fase 2):** el modelo es fiel pero escueto (omite la IT 3.8 en la pregunta de la temperatura). Medirlo en el golden set y probar few-shot o re-ranking.
 - [ ] **Relaciones "modifica" (Fase 6):** no están en el PDF consolidado; hay que sacarlas del HTML o del análisis del BOE.
 - [ ] **Pendiente técnico de la Fase 3:** lockfile con versiones exactas (ver ADR-003).
 
@@ -213,10 +214,10 @@ Se marcan con `[x]` al terminarlas, y se actualiza la tabla de [Progreso](#progr
 
 **Pieza 5 — Generación y entregable**
 
-- [ ] Prompt con los chunks etiquetados; la cita la construye el código desde los metadatos. Instrucción explícita de responder «no consta» si los chunks no contienen la respuesta (la similitud no lo detecta: q05). Mejora barata: si la pregunta cita «IT x.y.z» o «artículo N», buscar ese chunk por id antes que por similitud (q04). · *0,5 h*
-- [ ] Cliente `openai` contra Ollama `/v1` (Qwen 3-4B en Q4). · *0,25 h*
-- [ ] `answer(question) -> Answer` (texto, citas, ids recuperados). · *0,5 h*
-- [ ] Script de línea de comandos que responde citando el artículo. · *0,25 h*
+- [x] Prompt con los chunks etiquetados; la cita la construye el código desde los metadatos. Instrucción explícita de responder «no consta» si los chunks no contienen la respuesta (la similitud no lo detecta: q05). Mejora barata: si la pregunta cita «IT x.y.z» o «artículo N», buscar ese chunk por id antes que por similitud (q04). · *0,5 h*
+- [x] Cliente `openai` contra Ollama `/v1`: **`qwen3:4b-instruct`** (el `qwen3:4b` de Ollama es la variante que siempre razona; el 1.7b no cita). ADR-007. · *0,25 h*
+- [x] `answer(question) -> Answer` (texto, citas, ids recuperados). · *0,5 h*
+- [x] Script de línea de comandos que responde citando el artículo. Prueba con 4 preguntas: «¿Qué es el RITE?» ✅ (sin RAG inventaba), temperatura ⚠️ correcta pero sin la IT 3.8 (completitud), IT 1.2.4.7.4 ✅ por id, cable ✅ «no consta». 12-21 s por respuesta. · *0,25 h*
 - [ ] README (inglés) y `decisions.md` actualizados; commit de la Fase 1. · *0,4 h*
 
 ### F2 · Evaluación ⬜

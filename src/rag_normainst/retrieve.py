@@ -16,6 +16,7 @@ Uso (desde la raíz del repo, con el entorno activado):
 from __future__ import annotations
 
 import argparse
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -70,6 +71,23 @@ class Retriever:
                                             res["metadatas"][0], res["documents"][0])
         ]
 
+    def lookup_units(self, units: list[str]) -> list[Hit]:
+        """Chunks de las unidades citadas, buscados por metadato (no por similitud)."""
+        hits: list[Hit] = []
+        for unit in units:
+            got = self.collection.get(where={"unit": unit}, include=["documents", "metadatas"])
+            for cid, meta, doc in sorted(zip(got["ids"], got["metadatas"], got["documents"]),
+                                         key=lambda x: x[1]["piece"]):
+                hits.append(Hit(cid, 1.0, meta["unit"], meta["title"], meta["page_start"], doc))
+        return hits
+
+    def search_with_lookup(self, question: str, k: int = 5) -> list[Hit]:
+        """Primero las unidades citadas por id; después, la búsqueda semántica."""
+        exact = self.lookup_units(cited_units(question))
+        seen = {h.id for h in exact}
+        semantic = [h for h in self.search(question, k) if h.id not in seen]
+        return (exact + semantic)[:max(k, len(exact))]
+
     def search_numpy(self, question: str, k: int = 5) -> list[Hit]:
         """Lo mismo que search(), a mano: producto escalar contra todos y ordenar."""
         if self._matrix is None:
@@ -85,6 +103,18 @@ class Retriever:
                 self._metas[i]["page_start"], self._docs[i])
             for i in best
         ]
+
+
+# Unidades citadas en la pregunta: "IT 1.2.4.7.4", "artículo 18".
+CITED_IT_RE = re.compile(r"\bIT\s+(\d+(?:\.\d+)+)")
+CITED_ART_RE = re.compile(r"\bart[íi]culo\s+(\d+)\b", re.IGNORECASE)
+
+
+def cited_units(question: str) -> list[str]:
+    """Etiquetas de unidad ("IT 1.2.4.7.4", "Artículo 18") que nombra la pregunta."""
+    units = [f"IT {n.rstrip('.')}" for n in CITED_IT_RE.findall(question)]
+    units += [f"Artículo {n}" for n in CITED_ART_RE.findall(question)]
+    return units
 
 
 def print_hits(hits: list[Hit], label: str) -> None:

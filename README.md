@@ -2,7 +2,7 @@
 
 Ask questions in natural language about Spanish technical installation regulations and get answers that **cite the exact article** they rely on, so every answer can be verified. Everything runs locally: documents never leave the machine.
 
-> Status: Phase 0 — repository skeleton. See [`docs/plan.md`](docs/plan.md) for the roadmap.
+> Status: Phase 1 — minimal RAG in plain Python works end to end. See [`docs/plan.md`](docs/plan.md) for the roadmap.
 
 ## Why this domain
 
@@ -17,7 +17,7 @@ Query: question → query embedding → top-k similarity search → prompt assem
 
 ## How to run
 
-_The full pipeline will be added in Phase 1. Target from Phase 3 onwards: a single `docker compose up`._
+_Target from Phase 3 onwards: a single `docker compose up`._
 
 ### Development setup
 
@@ -37,6 +37,28 @@ python -c "import rag_normainst; print(rag_normainst.__file__)"
 ```
 
 The printed path should point to `src/rag_normainst/__init__.py` inside this repository.
+
+### Build the index and ask a question
+
+Download the consolidated RITE from the BOE (BOE-A-2007-15820) into `data/raw/`. It is not stored in this repository. Install [Ollama](https://ollama.com) and pull the generator: `ollama pull qwen3:4b-instruct`.
+
+```bash
+python -m rag_normainst.ingest.extract data/raw/BOE-A-2007-15820-consolidado.pdf
+python -m rag_normainst.ingest.chunk data/interim/BOE-A-2007-15820-consolidado.lines.jsonl
+python -m rag_normainst.store data/processed/BOE-A-2007-15820-consolidado.chunks.jsonl
+python -m rag_normainst.pipeline "¿Qué temperatura operativa se exige en invierno?"
+```
+
+Example output:
+
+```
+21...23 ºC [1]
+
+fuentes:
+  [1] RITE, IT 1.1.4.1.2. Temperatura operativa y humedad relativa (pág. 29)
+```
+
+The model only writes the label `[1]`; the article, title and page come from the chunk metadata, so a citation always points to a real fragment. If the retrieved fragments do not contain the answer, the reply is "No consta en el RITE." Run the tests with `python -m pip install -e ".[dev]"` and `python -m pytest`.
 
 ## Evaluation results
 
