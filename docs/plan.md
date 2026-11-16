@@ -6,7 +6,7 @@
 
 > Si retomas el proyecto en una conversación nueva, empieza por aquí.
 
-**Fase actual:** **Fase 1**. Pieza 1 (extracción) cerrada en `c30e6b6` y pieza 2 (chunking, ADR-005) cerrada en `d07eb06`, ambas subidas a `main`. En curso la **pieza 3 (embeddings e índice)**: modelo elegido (ADR-006), chunks medidos en tokens e índice en Chroma creado (417 chunks); falta el commit. Después, pieza 4 (recuperación).
+**Fase actual:** **Fase 1**. Piezas cerradas y subidas a `main`: 1 extracción (`c30e6b6`, ADR-004), 2 chunking (`d07eb06`, ADR-005) y 3 embeddings e índice (`af06419`, ADR-006). En curso la **pieza 4 (recuperación)**.
 
 **Siguiente tarea:** la primera casilla sin marcar de la Fase 1, en [Tareas por fase](#tareas-por-fase).
 
@@ -17,7 +17,7 @@ Leyenda: ✅ terminada · 🔄 en curso · ⬜ sin empezar. En las listas, `[x]`
 | Fase | Estado | Tareas hechas | Horas (estimadas) |
 | --- | --- | --- | --- |
 | F0 · Repositorio y esqueleto | ✅ | 9 / 9 | 2 / 2 h |
-| F1 · RAG mínimo en Python puro | 🔄 | 23 / 31 | 10,85 / 14 h |
+| F1 · RAG mínimo en Python puro | 🔄 | 26 / 31 | 12,1 / 14 h |
 | F2 · Evaluación | ⬜ | 0 / 10 | 0 / 8 h |
 | F2B · Port a LangChain | ⬜ | 0 / 6 | 0 / 6 h |
 | F3 · Docker | ⬜ | 0 / 11 | 0 / 12 h |
@@ -26,7 +26,7 @@ Leyenda: ✅ terminada · 🔄 en curso · ⬜ sin empezar. En las listas, `[x]`
 | F6 · Grafo de conocimiento | ⬜ | 0 / 8 | 0 / 20 h |
 | F7 · Function calling y agentes | ⬜ | 0 / 7 | 0 / 12 h |
 | F8 · Airflow (opcional) | ⬜ | 0 / 6 | 0 / 20 h |
-| **Total** | | **32 / 102** | **12,85 / 112 h** |
+| **Total** | | **35 / 102** | **14,1 / 112 h** |
 
 **Cómo se trabaja en local (para no repetir errores ya cometidos):**
 
@@ -207,13 +207,13 @@ Se marcan con `[x]` al terminarlas, y se actualiza la tabla de [Progreso](#progr
 
 **Pieza 4 — Recuperación**
 
-- [ ] Ejercicio: similitud del coseno a mano con NumPy y comparar con Chroma. · *0,5 h*
-- [ ] Búsqueda top-k con Chroma. · *0,25 h*
-- [ ] 5 preguntas cuya respuesta conoces, revisando qué chunks se recuperan. · *0,5 h*
+- [x] Ejercicio: similitud del coseno a mano con NumPy y comparar con Chroma (mismo orden, diferencia 0,000000). · *0,5 h*
+- [x] Búsqueda top-k con Chroma (`retrieve.py`: `Retriever.search`, comprueba que el índice es del mismo modelo). · *0,25 h*
+- [x] 5 preguntas cuya respuesta conoces, revisando qué chunks se recuperan. *Semilla del golden set en `eval/golden_seed.jsonl` (6 preguntas). De las 4 con respuesta: hit@1 2/4, hit@5 3/4, MRR 0,56. Falla la que cita un número de IT (q04, la búsqueda semántica no entiende códigos) y la de periodicidad sale 4.ª (q03). La pregunta sin respuesta (q05) puntúa 0,825, igual que las buenas: la similitud no sirve para detectar que no hay respuesta.* · *0,5 h*
 
 **Pieza 5 — Generación y entregable**
 
-- [ ] Prompt con los chunks etiquetados; la cita la construye el código desde los metadatos. · *0,5 h*
+- [ ] Prompt con los chunks etiquetados; la cita la construye el código desde los metadatos. Instrucción explícita de responder «no consta» si los chunks no contienen la respuesta (la similitud no lo detecta: q05). Mejora barata: si la pregunta cita «IT x.y.z» o «artículo N», buscar ese chunk por id antes que por similitud (q04). · *0,5 h*
 - [ ] Cliente `openai` contra Ollama `/v1` (Qwen 3-4B en Q4). · *0,25 h*
 - [ ] `answer(question) -> Answer` (texto, citas, ids recuperados). · *0,5 h*
 - [ ] Script de línea de comandos que responde citando el artículo. · *0,25 h*
@@ -353,11 +353,13 @@ RAG/
 │   │   └── chunk.py               # ✅ troceado por estructura (lo reutiliza la 2B)
 │   ├── embeddings.py        # modelos de embeddings y medida en tokens
 │   ├── store.py             # índice en Chroma (coseno, idempotente, red de seguridad)
+│   ├── retrieve.py          # búsqueda top-k: Chroma y NumPy a mano
 │   ├── generate.py
 │   └── pipeline.py          # answer(question) -> Answer
 ├── langchain_port/          # Fase 2B
 │   └── pipeline.py          # misma interfaz answer()
 ├── eval/
+│   ├── golden_seed.jsonl    # ✅ semilla: 6 preguntas con el chunk esperado
 │   ├── golden_set.jsonl     # tus preguntas de referencia
 │   ├── run_eval.py          # --pipeline pure | langchain
 │   └── results/             # una ejecución por fichero, con fecha

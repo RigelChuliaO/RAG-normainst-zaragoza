@@ -418,7 +418,7 @@ footer{color:var(--muted); font-size:13px}
    Cada tarea es [texto, hecha, horas estimadas]. Las horas de cada fase suman sus h. El estado de cada fase se calcula a partir de sus tareas:
    todas hechas = terminada; alguna hecha = en curso; ninguna = pendiente.
    Actualizado el 13 de noviembre de 2026. */
-const UPDATED = "14 de noviembre de 2026";
+const UPDATED = "16 de noviembre de 2026";
 const PHASES = [
   {id:"f0", name:"F0 · Repositorio", h:2, s:1, e:1, core:true,
    goal:"Repositorio en GitHub, entorno conda solo para el intérprete con dependencias en pyproject.toml, paquete instalable con src layout, .gitignore con .env, .gitattributes, licencia MIT, README inicial y registro de decisiones.",
@@ -463,16 +463,16 @@ const PHASES = [
      ["Detectar referencias cruzadas («artículo 18», «IT 1.2.4») y guardarlas en refs", true, 0.5],
      ["Tests del chunker: ningún chunk sin cuerpo, todos los artículos e IT presentes", true, 0.5],
      ["Inspeccionar a mano una muestra de chunks (corto, largo, con tabla)", true, 0.25]]},
-    {g:"Pieza 3 · Embeddings e índice", items:[
+    {g:"Pieza 3 · Embeddings e índice (commit af06419)", items:[
      ["nvidia-smi: GTX 1650, 4 GB, CUDA 13.3 (~2 GB ya ocupados por el escritorio)", true, 0.1],
      ["Concepto: qué es un embedding, cómo se elige el modelo, prefijos query:/passage: de E5", true, 0.5],
      ["Elegir modelos: e5-base para empezar; e5-small y bge-m3 para comparar (ADR-006)", true, 0.4],
      ["Medir los chunks en tokens (e5-base): con 250 palabras, 0 de 417 pasan de 512 (máx. 483)", true, 0.5],
      ["Indexar en Chroma: 417 chunks en 83 s, coseno, idempotente, con red de seguridad", true, 1]]},
     {g:"Pieza 4 · Recuperación", items:[
-     ["Ejercicio: similitud del coseno a mano con NumPy y comparar con Chroma", false, 0.5],
-     ["Búsqueda top-k con Chroma", false, 0.25],
-     ["5 preguntas cuya respuesta conoces, revisando qué chunks se recuperan", false, 0.5]]},
+     ["Ejercicio: coseno a mano con NumPy = Chroma (mismo orden, diferencia 0)", true, 0.5],
+     ["Búsqueda top-k con Chroma (retrieve.py)", true, 0.25],
+     ["5 preguntas reales: hit@1 2/4, hit@5 3/4; falla la del número de IT; semilla en eval/golden_seed.jsonl", true, 0.5]]},
     {g:"Pieza 5 · Generación y entregable", items:[
      ["Prompt con los chunks etiquetados; la cita la construye el código desde los metadatos", false, 0.5],
      ["Cliente openai contra Ollama /v1 (Qwen 3-4B en Q4)", false, 0.25],
