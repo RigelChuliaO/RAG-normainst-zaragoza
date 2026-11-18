@@ -62,12 +62,19 @@ The model only writes the label `[1]`; the article, title and page come from the
 
 ## Evaluation results
 
-_Baseline to be published in Phase 2._
+Baseline v0, measured on 16-17 November 2026 with `eval/run_eval.py` on a 42-question golden set (`eval/golden_set.jsonl`: 36 answerable, 6 whose answer is not in the RITE, 8 held out). Embeddings `multilingual-e5-base`, k = 5, generator `qwen3:4b-instruct`. Retrieval and generation are measured separately ([ADR-008](docs/decisions.md)).
 
-| Pipeline | Hit rate@k | Recall@k | MRR | Faithfulness |
-| --- | --- | --- | --- | --- |
-| Plain Python (v0) | – | – | – | – |
-| LangChain port | – | – | – | – |
+| Pipeline | Hit rate@5 | Recall@5 | MRR | Correct | Complete | Faithful (judge) | Invents when the answer is absent |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Plain Python (v0) | 0.86 | 0.85 | 0.70 | 0.76 | 0.74 | 0.90 (0.83 by reference labels) | 0 / 6 |
+| LangChain port | – | – | – | – | – | – | – |
+
+- **Correct / complete** are graded by code: required facts present, no forbidden facts, «No consta» exactly when it should; *complete* also requires citing every expected unit.
+- **Faithful** is the LLM judge's rate on the 30 answers that claim something. The judge agreed with the reference labels on 28/30 (Cohen's kappa 0.71) but let 2 unfaithful answers through, so it is used as an alarm, not as the grade.
+- Of the 10 failures, 7 are retrieval failures (the required facts never reached the model) and 3 are generation failures.
+- Weakest point: prohibitions (1 of 4 correct). User wording («coal boiler», «storage room») does not match the regulation's («fossil solid fuels», «non-habitable rooms»); hit@10 equals hit@5, so a larger k does not help. When the right fragment is missing, the model does not say «No consta»: it answers «Yes, you can» from unrelated fragments (q28-q30).
+
+Reproduce: `python eval/run_eval.py --pipeline pure` (retrieval) and `python eval/run_eval.py --pipeline pure --stage generation` (needs Ollama). Dated results are kept in `eval/results/`.
 
 ## Design decisions
 

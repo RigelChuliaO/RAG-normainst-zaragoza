@@ -418,7 +418,7 @@ footer{color:var(--muted); font-size:13px}
    Cada tarea es [texto, hecha, horas estimadas]. Las horas de cada fase suman sus h. El estado de cada fase se calcula a partir de sus tareas:
    todas hechas = terminada; alguna hecha = en curso; ninguna = pendiente.
    Actualizado el 13 de noviembre de 2026. */
-const UPDATED = "16 de noviembre de 2026";
+const UPDATED = "18 de noviembre de 2026";
 const PHASES = [
   {id:"f0", name:"F0 · Repositorio", h:2, s:1, e:1, core:true,
    goal:"Repositorio en GitHub, entorno conda solo para el intérprete con dependencias en pyproject.toml, paquete instalable con src layout, .gitignore con .env, .gitattributes, licencia MIT, README inicial y registro de decisiones.",
@@ -473,12 +473,12 @@ const PHASES = [
      ["Ejercicio: coseno a mano con NumPy = Chroma (mismo orden, diferencia 0)", true, 0.5],
      ["Búsqueda top-k con Chroma (retrieve.py)", true, 0.25],
      ["5 preguntas reales: hit@1 2/4, hit@5 3/4; falla la del número de IT; semilla en eval/golden_seed.jsonl", true, 0.5]]},
-    {g:"Pieza 5 · Generación y entregable", items:[
+    {g:"Pieza 5 · Generación y entregable (commit 50f8941)", items:[
      ["Prompt con los chunks etiquetados; la cita la construye el código desde los metadatos", true, 0.5],
      ["Cliente openai contra Ollama /v1: qwen3:4b-instruct (ADR-007)", true, 0.25],
      ["answer(question) -> Answer (texto, citas, ids recuperados)", true, 0.5],
      ["Script de línea de comandos: 4 preguntas, 3 bien y 1 incompleta (sin la IT 3.8); 12-21 s", true, 0.25],
-     ["README (inglés) y decisions.md actualizados; commit de la Fase 1", false, 0.4]]}]},
+     ["README (inglés) y decisions.md actualizados; commit de la Fase 1", true, 0.4]]}]},
   {id:"f2", name:"F2 · Evaluación", h:8, s:3, e:3, core:true, key:true,
    goal:"Golden set de 30-50 preguntas escritas por ti, con artículo correcto y respuesta esperada. Recuperación y generación se miden por separado.",
    concepts:["hit rate@k, recall@k y MRR","faithfulness y answer correctness","LLM-as-a-judge calibrado contra tu juicio","Regression suite y preguntas sin respuesta («no consta»)"],
@@ -486,16 +486,16 @@ const PHASES = [
    check:"La métrica cambia cuando rompes algo a propósito (k=1, troceado fijo). Si no se mueve, no está midiendo.",
    out:"Script de evaluación y baseline v0 (Python puro) en el README.",
    tasks:[{g:null, items:[
-     ["Golden set de 30-50 preguntas escritas por ti, con artículos correctos y respuesta esperada", false, 2],
-     ["Incluir preguntas sin respuesta en el corpus (¿dice «no consta»?)", false, 0.5],
-     ["Métricas de recuperación: hit rate@k, recall@k, MRR", false, 1],
-     ["Métricas de generación: faithfulness y answer correctness", false, 1],
-     ["LLM-as-a-judge calibrado contra tu juicio en una muestra", false, 1],
-     ["Desglose de errores por tipo de pregunta", false, 0.5],
-     ["eval/run_eval.py --pipeline pure, con resultados fechados en eval/results/", false, 1],
-     ["Regression suite: correr la evaluación al cambiar el prompt o el chunking", false, 0.5],
-     ["Baseline v0 publicada en el README", false, 0.25],
-     ["Commit de la Fase 2", false, 0.25]]}]},
+     ["Golden set: 42 preguntas en eval/golden_set.jsonl, ids por unidad, 8 reservadas (holdout)", true, 2],
+     ["Incluir preguntas sin respuesta: 6, de temas cercanos (REBT, CTE)", true, 0.5],
+     ["Métricas de recuperación: hit@5 0,86 · MRR 0,70; fallan 3 de 4 prohibiciones (vocabulario)", true, 1],
+     ["Generación: correctas 0,76, completas 0,74; fieles 0,83-0,90", true, 1],
+     ["Juez LLM: kappa 0,71 pero deja pasar 2 de 5 infieles; queda como alarma (ADR-008)", true, 1],
+     ["Desglose por tipo y diagnóstico: 7 fallos de recuperación, 3 de generación", true, 0.5],
+     ["run_eval.py: recuperación y generación; 0,76 correctas, inventa si la recuperación falla", true, 1],
+     ["Regression suite: resultados fechados y --rescore; 3 errores del solucionario corregidos", true, 0.5],
+     ["Baseline v0 publicada en el README", true, 0.25],
+     ["Commit de la Fase 2", true, 0.25]]}]},
   {id:"f2b", name:"F2B · Port a LangChain", h:6, s:4, e:4, core:true,
    goal:"La misma tubería con Document, Embeddings, VectorStore/Retriever, PromptTemplate, ChatOllama y LCEL. Reutiliza tu chunk.py.",
    concepts:["Runnables y LCEL (el operador |)","Qué función tuya sustituye cada abstracción","Cuándo SÍ y cuándo NO usar un framework"],
@@ -683,7 +683,7 @@ const TODO = [
   ["Modelo de embeddings: multilingual-e5-base en CPU; comparar en la F2 (ADR-006)", true],
   ["Tablas en los chunks: en la F1, texto tal cual + título; mejora medible después", true],
   ["VRAM (opcional): el 4b-instruct va repartido CPU/GPU en 12-21 s; liberar VRAM lo aceleraría", false],
-  ["Completitud de las respuestas: fiel pero escueto; medir en la Fase 2 y probar few-shot o re-ranking", false],
+  ["Completitud y «no consta»: completas 0,74, inventa si la recuperación falla; probar en la F5", false],
   ["Relaciones «modifica» (F6): no están en el PDF; HTML o análisis del BOE", false],
   ["Lockfile con versiones exactas (F3, ADR-003)", false]
 ];

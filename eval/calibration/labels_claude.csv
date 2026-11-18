@@ -1,0 +1,31 @@
+id,fiel,afirmacion_no_respaldada
+q01,si,
+q02,si,
+q03,si,
+q04,si,
+q06,si,
+q08,si,
+q09,si,
+q11,si,
+q12,si,
+q14,si,
+q16,si,
+q17,si,
+q18,si,
+q19,si,
+q20,si,
+q21,si,
+q22,si,
+q23,si,
+q24,si,
+q25,no,"«en todos estos casos, el mantenimiento debe realizarse bajo la dirección de un técnico titulado»: el art. 26.6 c) lo exige solo por encima de 5.000 kW en calor o 1.000 kW en frío, no por encima de 70 kW"
+q26,si,
+q27,si,
+q28,no,"«Sí, puede colocarse una estufa de gas en la terraza de un bar»: los fragmentos hablan de evacuación de humos y salas de máquinas, no de estufas en terrazas"
+q29,no,"«Sí, se puede climatizar un trastero o un garaje»: ningún fragmento habla de trasteros ni garajes; aplica la regla de espacios abiertos a otro caso"
+q30,no,"«Sí, puedes instalar una caldera de carbón en una casa nueva»: deduce un permiso de que no ve una prohibición; los fragmentos solo dan distancias en salas de máquinas"
+q31,si,
+q32,si,
+q33,no,"«se requiere cumplir con ciertas condiciones, como que la variación de potencia [...] no supere el 25 %»: el art. 24.11 no es un requisito, es la excepción que exime del registro"
+q34,si,
+q35,si,

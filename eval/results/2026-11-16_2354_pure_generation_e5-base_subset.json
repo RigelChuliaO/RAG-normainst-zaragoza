@@ -1,0 +1,163 @@
+{
+  "config": {
+    "pipeline": "pure",
+    "stage": "generation",
+    "model": "e5-base",
+    "lookup": true,
+    "golden": "golden_set.jsonl",
+    "ids": "q05,q06,q37",
+    "commit": "50f8941+cambios",
+    "date": "2026-11-16T23:54:48",
+    "llm": "qwen3:4b-instruct",
+    "k": 5
+  },
+  "summary": {
+    "total": {
+      "n": 3,
+      "correct": 0.6666666666666666,
+      "complete": 0.3333333333333333
+    },
+    "by_split": {
+      "dev": {
+        "n": 3,
+        "correct": 0.6666666666666666,
+        "complete": 0.3333333333333333
+      }
+    },
+    "by_type": {
+      "multi_unidad": {
+        "n": 1,
+        "correct": 0.0,
+        "complete": 0.0
+      },
+      "sin_respuesta": {
+        "n": 1,
+        "correct": 1.0,
+        "complete": 1.0
+      },
+      "valor_en_tabla_ambiguo": {
+        "n": 1,
+        "correct": 1.0,
+        "complete": 0.0
+      }
+    },
+    "abstention": {
+      "no_consta_correcto": 1,
+      "no_consta_indebido": 1,
+      "responde_cuando_consta": 1
+    },
+    "diagnosis": {
+      "fallo_generacion": 1,
+      "ok": 2
+    },
+    "coverage_mean": 0.5,
+    "cites_expected": 1.0,
+    "citation_recall": 0.5,
+    "invalid_citations": 0,
+    "no_citation": 0,
+    "seconds_mean": 14.833333333333334
+  },
+  "questions": [
+    {
+      "id": "q05",
+      "type": "sin_respuesta",
+      "split": "dev",
+      "question": "¿Qué sección mínima de cable debe tener el circuito de una vivienda?",
+      "expected": [],
+      "answer": "No consta en el RITE.",
+      "retrieved": [
+        "RITE:IT-1.2.4.2.2#1",
+        "RITE:IT-1.3.4.1.2.2#4",
+        "RITE:IT-1.2.4.2.1.2#2",
+        "RITE:IT-1.3.4.2.10.4",
+        "RITE:IT-1.3.4.1.2.7#3"
+      ],
+      "cited": [],
+      "no_consta": true,
+      "prompt_tokens": 1720,
+      "completion_tokens": 9,
+      "seconds": 24.4,
+      "abstention": "no_consta_correcto",
+      "coverage": null,
+      "forbidden": [],
+      "n_citations": 0,
+      "invalid_labels": [],
+      "cites_expected": null,
+      "citation_recall": null,
+      "context_hit": null,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok"
+    },
+    {
+      "id": "q06",
+      "type": "valor_en_tabla_ambiguo",
+      "split": "dev",
+      "question": "¿Qué temperatura operativa se exige en invierno?",
+      "expected": [
+        "RITE:IT-1.1.4.1.2",
+        "RITE:IT-3.8"
+      ],
+      "answer": "En invierno, la temperatura operativa se exige entre 21 °C y 23 °C [1].",
+      "retrieved": [
+        "RITE:IT-1.1.4.1.2#1",
+        "RITE:IT-1.1.4.1.2#2",
+        "RITE:IT-1.2.4.1.1#3",
+        "RITE:IT-3.8#2",
+        "RITE:IT-1.2.4.1.3.3"
+      ],
+      "cited": [
+        "RITE:IT-1.1.4.1.2#1"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 1883,
+      "completion_tokens": 28,
+      "seconds": 12.4,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 0.5,
+      "context_hit": true,
+      "correct": true,
+      "complete": false,
+      "diagnosis": "ok"
+    },
+    {
+      "id": "q37",
+      "type": "multi_unidad",
+      "split": "dev",
+      "question": "¿A qué temperatura hay que tener el agua caliente para evitar la legionela?",
+      "expected": [
+        "RITE:IT-1.1.4.3.1",
+        "RITE:IT-1.2.4.3.4"
+      ],
+      "answer": "No consta en el RITE.",
+      "retrieved": [
+        "RITE:IT-1.1.4.3.1",
+        "RITE:IT-1.1.4.3.2",
+        "RITE:IT-1.2.4.1.3.4",
+        "RITE:IT-2.2.2.2#2",
+        "RITE:IT-1.3.4.4.1"
+      ],
+      "cited": [],
+      "no_consta": true,
+      "prompt_tokens": 1350,
+      "completion_tokens": 9,
+      "seconds": 7.7,
+      "abstention": "no_consta_indebido",
+      "coverage": 0.0,
+      "forbidden": [],
+      "n_citations": 0,
+      "invalid_labels": [],
+      "cites_expected": false,
+      "citation_recall": 0.0,
+      "context_hit": true,
+      "correct": false,
+      "complete": false,
+      "diagnosis": "fallo_generacion"
+    }
+  ]
+}

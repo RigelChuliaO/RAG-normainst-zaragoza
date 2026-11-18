@@ -1,0 +1,1840 @@
+{
+  "config": {
+    "pipeline": "pure",
+    "stage": "generation",
+    "model": "e5-base",
+    "lookup": true,
+    "golden": "golden_set.jsonl",
+    "ids": null,
+    "commit": "50f8941+cambios",
+    "date": "2026-11-17T00:08:34",
+    "llm": "qwen3:4b-instruct",
+    "k": 5,
+    "rescored_from": "2026-11-17_0008_pure_generation_e5-base.json",
+    "rescore_commit": "50f8941+cambios",
+    "rescore_date": "2026-11-16T23:11:17",
+    "judge": "qwen3:4b-instruct"
+  },
+  "summary": {
+    "total": {
+      "n": 42,
+      "correct": 0.7619047619047619,
+      "complete": 0.7380952380952381
+    },
+    "by_split": {
+      "dev": {
+        "n": 34,
+        "correct": 0.7352941176470589,
+        "complete": 0.7058823529411765
+      },
+      "holdout": {
+        "n": 8,
+        "correct": 0.875,
+        "complete": 0.875
+      }
+    },
+    "by_type": {
+      "ambito": {
+        "n": 2,
+        "correct": 0.5,
+        "complete": 0.5
+      },
+      "cita_numero": {
+        "n": 2,
+        "correct": 1.0,
+        "complete": 1.0
+      },
+      "definicion": {
+        "n": 4,
+        "correct": 0.75,
+        "complete": 0.75
+      },
+      "multi_unidad": {
+        "n": 1,
+        "correct": 0.0,
+        "complete": 0.0
+      },
+      "obligacion": {
+        "n": 5,
+        "correct": 1.0,
+        "complete": 1.0
+      },
+      "obligacion_multi": {
+        "n": 1,
+        "correct": 1.0,
+        "complete": 1.0
+      },
+      "periodicidad": {
+        "n": 5,
+        "correct": 0.8,
+        "complete": 0.8
+      },
+      "procedimiento": {
+        "n": 1,
+        "correct": 1.0,
+        "complete": 1.0
+      },
+      "prohibicion": {
+        "n": 4,
+        "correct": 0.25,
+        "complete": 0.25
+      },
+      "sin_respuesta": {
+        "n": 6,
+        "correct": 1.0,
+        "complete": 1.0
+      },
+      "umbral": {
+        "n": 2,
+        "correct": 1.0,
+        "complete": 1.0
+      },
+      "valor_en_lista": {
+        "n": 5,
+        "correct": 0.6,
+        "complete": 0.6
+      },
+      "valor_en_tabla": {
+        "n": 2,
+        "correct": 1.0,
+        "complete": 1.0
+      },
+      "valor_en_tabla_ambiguo": {
+        "n": 2,
+        "correct": 0.5,
+        "complete": 0.0
+      }
+    },
+    "abstention": {
+      "no_consta_correcto": 6,
+      "no_consta_indebido": 6,
+      "responde_cuando_consta": 30
+    },
+    "diagnosis": {
+      "fallo_generacion": 3,
+      "fallo_recuperacion": 7,
+      "ok": 32
+    },
+    "coverage_mean": 0.7222222222222222,
+    "cites_expected": 0.9,
+    "citation_recall": 0.8833333333333333,
+    "invalid_citations": 1,
+    "mixed_no_consta": 5,
+    "no_citation": 0,
+    "seconds_mean": 16.461904761904766
+  },
+  "questions": [
+    {
+      "id": "q01",
+      "type": "valor_en_lista",
+      "split": "dev",
+      "question": "¿Qué calidad de aire interior se exige en una oficina?",
+      "expected": [
+        "RITE:IT-1.1.4.2.2"
+      ],
+      "answer": "La calidad de aire interior que se exige en una oficina es IDA 2 (aire de buena calidad) [1].",
+      "retrieved": [
+        "RITE:IT-1.1.4.2.2",
+        "RITE:IT-1.1.4.2.1",
+        "RITE:IT-1.1.4.2.5#1",
+        "RITE:art-11",
+        "RITE:IT-1.1.4.2.5#2"
+      ],
+      "cited": [
+        "RITE:IT-1.1.4.2.2"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 1815,
+      "completion_tokens": 28,
+      "seconds": 14.5,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "La afirmación está respaldada por el fragmento [1], que indica que las oficinas pertenecen a la categoría IDA 2 (aire de buena calidad).",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"La afirmación está respaldada por el fragmento [1], que indica que las oficinas pertenecen a la categoría IDA 2 (aire de buena calidad).\"}"
+      }
+    },
+    {
+      "id": "q02",
+      "type": "definicion",
+      "split": "dev",
+      "question": "¿Qué significa IDA 2?",
+      "expected": [
+        "RITE:AP1:ida-2"
+      ],
+      "answer": "IDA 2 significa aire de calidad media [1].",
+      "retrieved": [
+        "RITE:AP1:ida-2",
+        "RITE:AP1:ida-1",
+        "RITE:IT-1.1.4.2.2",
+        "RITE:AP1:ida-3",
+        "RITE:AP1:ida-4"
+      ],
+      "cited": [
+        "RITE:AP1:ida-2"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 654,
+      "completion_tokens": 12,
+      "seconds": 3.5,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "La afirmación 'IDA 2 significa aire de calidad media' está directamente respaldada por el fragmento [1].",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"La afirmación 'IDA 2 significa aire de calidad media' está directamente respaldada por el fragmento [1].\"}"
+      }
+    },
+    {
+      "id": "q03",
+      "type": "periodicidad",
+      "split": "dev",
+      "question": "¿Cada cuánto hay que inspeccionar la eficiencia energética de una calefacción?",
+      "expected": [
+        "RITE:IT-4.3.1"
+      ],
+      "answer": "La inspección de eficiencia energética de una calefacción se realizará cada 4 años [4].",
+      "retrieved": [
+        "RITE:IT-4.2.1#1",
+        "RITE:IT-4.3.3",
+        "RITE:IT-4.2.4",
+        "RITE:IT-4.3.1",
+        "RITE:IT-4.2.1#3"
+      ],
+      "cited": [
+        "RITE:IT-4.3.1"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 1373,
+      "completion_tokens": 27,
+      "seconds": 8.8,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "La afirmación 'La inspección de eficiencia energética de una calefacción se realizará cada 4 años' está respaldada por el fragmento [4], que establece que la inspección de eficiencia energética obligada por la IT 4.2.1 se realiza cada 4 años.",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"La afirmación 'La inspección de eficiencia energética de una calefacción se realizará cada 4 años' está respaldada por el fragmento [4], que establece que la inspección de eficiencia energética obligada por la IT 4.2.1 se realiza cada 4 años.\"}"
+      }
+    },
+    {
+      "id": "q04",
+      "type": "cita_numero",
+      "split": "dev",
+      "question": "¿Qué dice la IT 1.2.4.7.4?",
+      "expected": [
+        "RITE:IT-1.2.4.7.4"
+      ],
+      "answer": "Queda prohibida la utilización de combustibles sólidos de origen fósil en las instalaciones térmicas de los edificios de nueva construcción y en las instalaciones térmicas que se reformen en los edificios existentes. [1]",
+      "retrieved": [
+        "RITE:IT-1.2.4.7.4",
+        "RITE:IT-4.3.1",
+        "RITE:IT-3.4.5",
+        "RITE:IT-4.3.2",
+        "RITE:AP2#1"
+      ],
+      "cited": [
+        "RITE:IT-1.2.4.7.4"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 741,
+      "completion_tokens": 57,
+      "seconds": 6.3,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "La afirmación está directamente respaldada por el fragmento [1] sin añadir ni modificar información.",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"La afirmación está directamente respaldada por el fragmento [1] sin añadir ni modificar información.\"}"
+      }
+    },
+    {
+      "id": "q05",
+      "type": "sin_respuesta",
+      "split": "dev",
+      "question": "¿Qué sección mínima de cable debe tener el circuito de una vivienda?",
+      "expected": [],
+      "answer": "No consta en el RITE.",
+      "retrieved": [
+        "RITE:IT-1.2.4.2.2#1",
+        "RITE:IT-1.3.4.1.2.2#4",
+        "RITE:IT-1.2.4.2.1.2#2",
+        "RITE:IT-1.3.4.2.10.4",
+        "RITE:IT-1.3.4.1.2.7#3"
+      ],
+      "cited": [],
+      "no_consta": true,
+      "prompt_tokens": 1720,
+      "completion_tokens": 9,
+      "seconds": 0.9,
+      "abstention": "no_consta_correcto",
+      "coverage": null,
+      "forbidden": [],
+      "n_citations": 0,
+      "invalid_labels": [],
+      "cites_expected": null,
+      "citation_recall": null,
+      "context_hit": null,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": null,
+      "mixed_no_consta": false
+    },
+    {
+      "id": "q06",
+      "type": "valor_en_tabla_ambiguo",
+      "split": "dev",
+      "question": "¿Qué temperatura operativa se exige en invierno?",
+      "expected": [
+        "RITE:IT-1.1.4.1.2",
+        "RITE:IT-3.8"
+      ],
+      "answer": "En invierno, la temperatura operativa se exige entre 21 °C y 23 °C [1].",
+      "retrieved": [
+        "RITE:IT-1.1.4.1.2#1",
+        "RITE:IT-1.1.4.1.2#2",
+        "RITE:IT-1.2.4.1.1#3",
+        "RITE:IT-3.8#2",
+        "RITE:IT-1.2.4.1.3.3"
+      ],
+      "cited": [
+        "RITE:IT-1.1.4.1.2#1"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 1883,
+      "completion_tokens": 28,
+      "seconds": 2.3,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 0.5,
+      "context_hit": true,
+      "correct": true,
+      "complete": false,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "La afirmación está respaldada por el fragmento [1], que especifica que en invierno la temperatura operativa está comprendida entre 21...23 ºC.",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"La afirmación está respaldada por el fragmento [1], que especifica que en invierno la temperatura operativa está comprendida entre 21...23 ºC.\"}"
+      }
+    },
+    {
+      "id": "q07",
+      "type": "definicion",
+      "split": "dev",
+      "question": "¿Cuántos vatios por metro cuadrado es un met?",
+      "expected": [
+        "RITE:AP1:met"
+      ],
+      "answer": "No consta en el RITE.",
+      "retrieved": [
+        "RITE:IT-1.3.4.1.2.2#3",
+        "RITE:AP2#3",
+        "RITE:IT-1.3.4.1.2.2#4",
+        "RITE:IT-1.3.4.1.3.2#2",
+        "RITE:IT-1.3.4.2.10.1"
+      ],
+      "cited": [],
+      "no_consta": true,
+      "prompt_tokens": 2127,
+      "completion_tokens": 9,
+      "seconds": 13.3,
+      "abstention": "no_consta_indebido",
+      "coverage": 0.0,
+      "forbidden": [],
+      "n_citations": 0,
+      "invalid_labels": [],
+      "cites_expected": false,
+      "citation_recall": 0.0,
+      "context_hit": false,
+      "correct": false,
+      "complete": false,
+      "diagnosis": "fallo_recuperacion",
+      "context_coverage": 0.0,
+      "mixed_no_consta": false
+    },
+    {
+      "id": "q08",
+      "type": "definicion",
+      "split": "dev",
+      "question": "¿Qué es el COP de una bomba de calor?",
+      "expected": [
+        "RITE:AP1:clo"
+      ],
+      "answer": "El COP (Coefficient of Performance) de una bomba de calor es la relación entre la capacidad calorífica y la potencia efectivamente absorbida por la unidad, en la modalidad de calefacción [2].",
+      "retrieved": [
+        "RITE:AP1:bomba-de-calor",
+        "RITE:AP1:clo",
+        "RITE:IT-1.2.4.1.2.1#3",
+        "RITE:AP1:equipo-autonomo-de-generacion-de-calor",
+        "RITE:IT-1.3.4.1.1#2"
+      ],
+      "cited": [
+        "RITE:AP1:clo"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 1376,
+      "completion_tokens": 47,
+      "seconds": 13.6,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "La afirmación está respaldada por el fragmento [2], que define el COP como la relación entre la capacidad calorífica y la potencia efectivamente absorbida por la unidad en la modalidad de calefacción.",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"La afirmación está respaldada por el fragmento [2], que define el COP como la relación entre la capacidad calorífica y la potencia efectivamente absorbida por la unidad en la modalidad de calefacción.\"}"
+      }
+    },
+    {
+      "id": "q09",
+      "type": "definicion",
+      "split": "holdout",
+      "question": "¿Quién es el titular de una instalación térmica?",
+      "expected": [
+        "RITE:AP1:titular-de-una-instalacion-termica"
+      ],
+      "answer": "El titular de una instalación térmica es persona física o jurídica propietaria o beneficiaria de una instalación térmica, responsable del cumplimiento de las obligaciones derivadas de la normativa vigente ante la Administración competente [1].",
+      "retrieved": [
+        "RITE:AP1:titular-de-una-instalacion-termica",
+        "RITE:art-35",
+        "RITE:AP1:director-de-la-instalacion",
+        "RITE:art-25",
+        "RITE:art-26#2"
+      ],
+      "cited": [
+        "RITE:AP1:titular-de-una-instalacion-termica"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 1317,
+      "completion_tokens": 56,
+      "seconds": 10.9,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "La afirmación está directamente respaldada por el fragmento [1], que define al titular de una instalación térmica como persona física o jurídica propietaria o beneficiaria, y señala que es responsable del cumplimiento de las obligaciones derivadas de la normativa vigente ante la Administración competente.",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"La afirmación está directamente respaldada por el fragmento [1], que define al titular de una instalación térmica como persona física o jurídica propietaria o beneficiaria, y señala que es responsable del cumplimiento de las obligaciones derivadas de la normativa vigente ante la Administración competente.\"}"
+      }
+    },
+    {
+      "id": "q10",
+      "type": "valor_en_tabla_ambiguo",
+      "split": "dev",
+      "question": "¿A qué temperatura hay que tener un local en verano?",
+      "expected": [
+        "RITE:IT-1.1.4.1.2",
+        "RITE:IT-3.8"
+      ],
+      "answer": "No consta en el RITE.",
+      "retrieved": [
+        "RITE:IT-1.1.4.1.2#2",
+        "RITE:IT-3.8#4",
+        "RITE:IT-3.8#3",
+        "RITE:IT-3.8#1",
+        "RITE:IT-1.2.4.1.1#3"
+      ],
+      "cited": [],
+      "no_consta": true,
+      "prompt_tokens": 1920,
+      "completion_tokens": 9,
+      "seconds": 11.7,
+      "abstention": "no_consta_indebido",
+      "coverage": 0.0,
+      "forbidden": [],
+      "n_citations": 0,
+      "invalid_labels": [],
+      "cites_expected": false,
+      "citation_recall": 0.0,
+      "context_hit": true,
+      "correct": false,
+      "complete": false,
+      "diagnosis": "fallo_recuperacion",
+      "context_coverage": 0.3333333333333333,
+      "mixed_no_consta": false
+    },
+    {
+      "id": "q11",
+      "type": "valor_en_tabla",
+      "split": "dev",
+      "question": "¿Cuánto aire exterior por persona necesita una oficina?",
+      "expected": [
+        "RITE:IT-1.1.4.2.3",
+        "RITE:IT-1.1.4.2.2"
+      ],
+      "answer": "Una oficina pertenece a la categoría IDA 2 (aire de buena calidad) [1]. Para esta categoría, según la tabla 1.4.2.1, el caudal mínimo de aire exterior es de 12,5 dm³/s por persona [3]. \n\nPor tanto, una oficina necesita un caudal mínimo de aire exterior de 12,5 dm³/s por persona.",
+      "retrieved": [
+        "RITE:IT-1.1.4.2.2",
+        "RITE:IT-1.1.4.2.1",
+        "RITE:IT-1.1.4.2.3#1",
+        "RITE:IT-1.3.4.1.2.7#3",
+        "RITE:AP1:aire-exterior"
+      ],
+      "cited": [
+        "RITE:IT-1.1.4.2.2",
+        "RITE:IT-1.1.4.2.3#1"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 1516,
+      "completion_tokens": 90,
+      "seconds": 11.9,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 2,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "La afirmación de que una oficina pertenece a la categoría IDA 2 está respaldada por [1], y el caudal mínimo de 12,5 dm³/s por persona para IDA 2 está especificado en [3]a) bajo condiciones de baja producción de contaminantes y sin fumar. La respuesta no introduce suposiciones ni contradice los fragmentos.",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"La afirmación de que una oficina pertenece a la categoría IDA 2 está respaldada por [1], y el caudal mínimo de 12,5 dm³/s por persona para IDA 2 está especificado en [3]a) bajo condiciones de baja producción de contaminantes y sin fumar. La respuesta no introduce suposiciones ni contradice los fragmentos.\"}"
+      }
+    },
+    {
+      "id": "q12",
+      "type": "valor_en_tabla",
+      "split": "dev",
+      "question": "¿Qué filtro hace falta para conseguir IDA 2 si el aire exterior es ODA 1?",
+      "expected": [
+        "RITE:IT-1.1.4.2.4"
+      ],
+      "answer": "Para conseguir IDA 2 si el aire exterior es ODA 1, según la tabla 1.4.2.5 en el fragmento [1], se debe emplear el filtro de clase F8.\n\n[1]",
+      "retrieved": [
+        "RITE:IT-1.1.4.2.4#1",
+        "RITE:IT-1.1.4.2.4#2",
+        "RITE:AP1:aire-exterior",
+        "RITE:IT-1.1.4.2.5#2",
+        "RITE:IT-1.1.4.2.2"
+      ],
+      "cited": [
+        "RITE:IT-1.1.4.2.4#1"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 1615,
+      "completion_tokens": 49,
+      "seconds": 12.6,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "La afirmación es respaldada por el fragmento [1], que indica que para ODA 1 y IDA 2 se debe emplear el filtro de clase F8 según la tabla 1.4.2.5.",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"La afirmación es respaldada por el fragmento [1], que indica que para ODA 1 y IDA 2 se debe emplear el filtro de clase F8 según la tabla 1.4.2.5.\"}"
+      }
+    },
+    {
+      "id": "q13",
+      "type": "periodicidad",
+      "split": "dev",
+      "question": "¿Cada cuánto hay que revisar una caldera mural de gas en una vivienda?",
+      "expected": [
+        "RITE:IT-3.3"
+      ],
+      "answer": "No consta en el RITE.",
+      "retrieved": [
+        "RITE:IT-4.2.1#1",
+        "RITE:IT-3.4.1",
+        "RITE:IT-1.3.4.1.2.2#8",
+        "RITE:IT-4.2.1#3",
+        "RITE:IT-3.3#4"
+      ],
+      "cited": [],
+      "no_consta": true,
+      "prompt_tokens": 2200,
+      "completion_tokens": 9,
+      "seconds": 11.3,
+      "abstention": "no_consta_indebido",
+      "coverage": 0.0,
+      "forbidden": [],
+      "n_citations": 0,
+      "invalid_labels": [],
+      "cites_expected": false,
+      "citation_recall": 0.0,
+      "context_hit": true,
+      "correct": false,
+      "complete": false,
+      "diagnosis": "fallo_recuperacion",
+      "context_coverage": 0.0,
+      "mixed_no_consta": false
+    },
+    {
+      "id": "q14",
+      "type": "valor_en_lista",
+      "split": "holdout",
+      "question": "¿A qué temperatura debe estar el aire de una piscina cubierta?",
+      "expected": [
+        "RITE:IT-1.1.4.1.2"
+      ],
+      "answer": "La temperatura del aire de los locales que alberguen piscinas climatizadas se mantendrá entre 1 °C y 2 °C por encima de la del agua del vaso, con un máximo de 30 °C [2].",
+      "retrieved": [
+        "RITE:IT-1.1.4.3.2",
+        "RITE:IT-1.1.4.1.2#2",
+        "RITE:IT-1.2.4.5.2#2",
+        "RITE:IT-1.2.4.5.5",
+        "RITE:IT-1.1.4.2.3#3"
+      ],
+      "cited": [
+        "RITE:IT-1.1.4.1.2#2"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 1467,
+      "completion_tokens": 55,
+      "seconds": 11.7,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "La afirmación está directamente respaldada por el fragmento [2], que especifica que la temperatura seca del aire de los locales que alberguen piscinas climatizadas se mantendrá entre 1 °C y 2 °C por encima de la del agua del vaso, con un máximo de 30 °C.",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"La afirmación está directamente respaldada por el fragmento [2], que especifica que la temperatura seca del aire de los locales que alberguen piscinas climatizadas se mantendrá entre 1 °C y 2 °C por encima de la del agua del vaso, con un máximo de 30 °C.\"}"
+      }
+    },
+    {
+      "id": "q15",
+      "type": "valor_en_lista",
+      "split": "dev",
+      "question": "¿Qué temperatura máxima puede tener una tubería que se pueda tocar?",
+      "expected": [
+        "RITE:IT-1.3.4.4.1"
+      ],
+      "answer": "No consta en el RITE.",
+      "retrieved": [
+        "RITE:IT-2.2.2.2#2",
+        "RITE:IT-2.2.2.4",
+        "RITE:IT-1.2.4.2.1.1#2",
+        "RITE:IT-1.2.4.2.1.2#1",
+        "RITE:IT-1.2.4.2.1.2#4"
+      ],
+      "cited": [],
+      "no_consta": true,
+      "prompt_tokens": 2115,
+      "completion_tokens": 9,
+      "seconds": 13.3,
+      "abstention": "no_consta_indebido",
+      "coverage": 0.0,
+      "forbidden": [],
+      "n_citations": 0,
+      "invalid_labels": [],
+      "cites_expected": false,
+      "citation_recall": 0.0,
+      "context_hit": false,
+      "correct": false,
+      "complete": false,
+      "diagnosis": "fallo_recuperacion",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false
+    },
+    {
+      "id": "q16",
+      "type": "umbral",
+      "split": "dev",
+      "question": "¿A partir de qué potencia el cuarto de la caldera se considera sala de máquinas?",
+      "expected": [
+        "RITE:IT-1.3.4.1.2.1"
+      ],
+      "answer": "A partir de una potencia superior a 70 kW el cuarto de la caldera se considera sala de máquinas [1].",
+      "retrieved": [
+        "RITE:IT-1.3.4.1.2.1",
+        "RITE:IT-1.3.4.1.2.8#1",
+        "RITE:IT-1.3.4.1.2.2#7",
+        "RITE:IT-1.3.4.1.2.2#3",
+        "RITE:IT-1.3.4.1.2.2#1"
+      ],
+      "cited": [
+        "RITE:IT-1.3.4.1.2.1"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 2113,
+      "completion_tokens": 31,
+      "seconds": 15.3,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "La afirmación está respaldada por el fragmento [1], que establece que se considera sala de máquinas al local técnico donde se alojan equipos de producción de frío o calor y otros equipos auxiliares con potencia superior a 70 kW.",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"La afirmación está respaldada por el fragmento [1], que establece que se considera sala de máquinas al local técnico donde se alojan equipos de producción de frío o calor y otros equipos auxiliares con potencia superior a 70 kW.\"}"
+      }
+    },
+    {
+      "id": "q17",
+      "type": "umbral",
+      "split": "dev",
+      "question": "¿Cuándo es obligatorio el enfriamiento gratuito por aire exterior?",
+      "expected": [
+        "RITE:IT-1.2.4.5.1"
+      ],
+      "answer": "Es obligatorio el enfriamiento gratuito por aire exterior en los sistemas de climatización del tipo todo aire, cuando la potencia útil nominal del sistema sea mayor que 70 kW en régimen de refrigeración [1].",
+      "retrieved": [
+        "RITE:IT-1.2.4.5.1",
+        "RITE:IT-1.2.4.1.3.3",
+        "RITE:IT-3.8#2",
+        "RITE:IT-1.3.4.1.1#3",
+        "RITE:IT-1.2.4.5.2#2"
+      ],
+      "cited": [
+        "RITE:IT-1.2.4.5.1"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 2144,
+      "completion_tokens": 48,
+      "seconds": 17.3,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "La afirmación está completamente respaldada por el fragmento [1], que establece que los sistemas de climatización del tipo todo aire con potencia útil nominal mayor que 70 kW en régimen de refrigeración dispondrán de un subsistema de enfriamiento gratuito por aire exterior.",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"La afirmación está completamente respaldada por el fragmento [1], que establece que los sistemas de climatización del tipo todo aire con potencia útil nominal mayor que 70 kW en régimen de refrigeración dispondrán de un subsistema de enfriamiento gratuito por aire exterior.\"}"
+      }
+    },
+    {
+      "id": "q18",
+      "type": "valor_en_lista",
+      "split": "dev",
+      "question": "¿A qué presión se hace la prueba de resistencia mecánica de un circuito de calefacción?",
+      "expected": [
+        "RITE:IT-2.2.2.4"
+      ],
+      "answer": "La presión de la prueba de resistencia mecánica de un circuito de calefacción depende de la temperatura máxima de servicio del circuito:\n\n- Para circuitos cerrados de agua refrigerada o de agua caliente hasta una temperatura máxima de servicio de 100 °C, la presión de prueba será equivalente a una vez y media la presión máxima efectiva de trabajo a la temperatura de servicio, con un mínimo de 6 bar. [1]\n\n- Para circuitos de agua caliente sanitaria, la presión de prueba será equivalente a dos veces la presión máxima efectiva de trabajo a la temperatura de servicio, con un mínimo de 6 bar. [1]\n\nNo consta en el RITE.",
+      "retrieved": [
+        "RITE:IT-2.2.2.4",
+        "RITE:IT-2.2.3",
+        "RITE:IT-2.2.2.3",
+        "RITE:IT-1.3.4.2.2#1",
+        "RITE:IT-4.2.1#1"
+      ],
+      "cited": [
+        "RITE:IT-2.2.2.4"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 1694,
+      "completion_tokens": 154,
+      "seconds": 24.8,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": true,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "Todas las afirmaciones de la respuesta están respaldadas por el fragmento [1], que especifica las condiciones para la presión de prueba en función de la temperatura máxima de servicio. La mención de que 'no consta en el RITE' no es una afirmación sobre los fragmentos, sino una observación externa que no se relaciona con los contenidos de los fragmentos, pero como no se afirma nada sobre el RITE en los fragmentos, y no se requiere que se cite el RITE, esta afirmación no es una afirmación sobre los fragmentos, por lo que no afecta la fidelidad.",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"Todas las afirmaciones de la respuesta están respaldadas por el fragmento [1], que especifica las condiciones para la presión de prueba en función de la temperatura máxima de servicio. La mención de que 'no consta en el RITE' no es una afirmación sobre los fragmentos, sino una observación externa que no se relaciona con los contenidos de los fragmentos, pero como no se afirma nada sobre el RITE en los fragmentos, y no se requiere que se cite el RITE, esta afirmación no es una afirmación sobre los fragmentos, por lo que no afecta la fidelidad.\"}"
+      }
+    },
+    {
+      "id": "q19",
+      "type": "periodicidad",
+      "split": "holdout",
+      "question": "¿Cada cuánto se inspecciona un sistema de aire acondicionado?",
+      "expected": [
+        "RITE:IT-4.3.2"
+      ],
+      "answer": "Cada 4 años se inspecciona un sistema de aire acondicionado [2].",
+      "retrieved": [
+        "RITE:IT-4.2.2#1",
+        "RITE:IT-4.3.2",
+        "RITE:IT-4.2.4",
+        "RITE:IT-4.2.2#3",
+        "RITE:IT-4.2.2#2"
+      ],
+      "cited": [
+        "RITE:IT-4.3.2"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 1411,
+      "completion_tokens": 22,
+      "seconds": 11.0,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "La afirmación 'Cada 4 años se inspecciona un sistema de aire acondicionado' está respaldada por el fragmento [2], que establece que la inspección de eficiencia energética obligada por la IT 4.2.2 se realiza cada 4 años.",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"La afirmación 'Cada 4 años se inspecciona un sistema de aire acondicionado' está respaldada por el fragmento [2], que establece que la inspección de eficiencia energética obligada por la IT 4.2.2 se realiza cada 4 años.\"}"
+      }
+    },
+    {
+      "id": "q20",
+      "type": "periodicidad",
+      "split": "dev",
+      "question": "¿Cada cuánto hay que emitir el certificado de mantenimiento?",
+      "expected": [
+        "RITE:art-28"
+      ],
+      "answer": "El certificado de mantenimiento debe emitirse anualmente [1].",
+      "retrieved": [
+        "RITE:art-28",
+        "RITE:art-27",
+        "RITE:art-37#1",
+        "RITE:IT-3.3#6",
+        "RITE:IT-3.3#1"
+      ],
+      "cited": [
+        "RITE:art-28"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 2078,
+      "completion_tokens": 16,
+      "seconds": 13.8,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "El fragmento [1] indica claramente que el certificado de mantenimiento será emitido anualmente en los casos en que sea obligatorio suscribir contrato de mantenimiento.",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"El fragmento [1] indica claramente que el certificado de mantenimiento será emitido anualmente en los casos en que sea obligatorio suscribir contrato de mantenimiento.\"}"
+      }
+    },
+    {
+      "id": "q21",
+      "type": "periodicidad",
+      "split": "dev",
+      "question": "¿Cuánto tiempo hay que guardar el registro de operaciones de mantenimiento?",
+      "expected": [
+        "RITE:art-27"
+      ],
+      "answer": "El registro de operaciones de mantenimiento debe conservarse durante un tiempo no inferior a cinco años, contados a partir de la fecha de ejecución de la correspondiente operación de mantenimiento [1].",
+      "retrieved": [
+        "RITE:art-27",
+        "RITE:art-28",
+        "RITE:IT-3.3#6",
+        "RITE:art-36#2",
+        "RITE:art-26#1"
+      ],
+      "cited": [
+        "RITE:art-27"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 1595,
+      "completion_tokens": 43,
+      "seconds": 11.9,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "La afirmación está directamente respaldada por el fragmento [1], que especifica que el registro debe conservarse durante un tiempo no inferior a cinco años, contados a partir de la fecha de ejecución de la operación de mantenimiento.",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"La afirmación está directamente respaldada por el fragmento [1], que especifica que el registro debe conservarse durante un tiempo no inferior a cinco años, contados a partir de la fecha de ejecución de la operación de mantenimiento.\"}"
+      }
+    },
+    {
+      "id": "q22",
+      "type": "obligacion_multi",
+      "split": "dev",
+      "question": "¿A partir de qué potencia necesito proyecto y quién lo tiene que firmar?",
+      "expected": [
+        "RITE:art-15",
+        "RITE:art-16"
+      ],
+      "answer": "A partir de una potencia térmica nominal mayor que 70 kW, se requiere un proyecto [4].  \nEl proyecto debe ser redactado y firmado por un técnico titulado competente [1].",
+      "retrieved": [
+        "RITE:art-16#1",
+        "RITE:art-15#4",
+        "RITE:art-15#2",
+        "RITE:art-15#1",
+        "RITE:art-20#2"
+      ],
+      "cited": [
+        "RITE:art-16#1",
+        "RITE:art-15#1"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 1631,
+      "completion_tokens": 47,
+      "seconds": 12.7,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 2,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "Todas las afirmaciones de la respuesta están respaldadas por los fragmentos: [4] especifica que para potencias mayores que 70 kW se requiere un proyecto; [1] indica que el proyecto debe ser redactado y firmado por un técnico titulado competente.",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"Todas las afirmaciones de la respuesta están respaldadas por los fragmentos: [4] especifica que para potencias mayores que 70 kW se requiere un proyecto; [1] indica que el proyecto debe ser redactado y firmado por un técnico titulado competente.\"}"
+      }
+    },
+    {
+      "id": "q23",
+      "type": "obligacion",
+      "split": "dev",
+      "question": "Para una instalación de 30 kW, ¿basta con una memoria técnica?",
+      "expected": [
+        "RITE:art-15"
+      ],
+      "answer": "Sí, basta con una memoria técnica para una instalación de 30 kW. [3]",
+      "retrieved": [
+        "RITE:IT-1.2.3#2",
+        "RITE:art-17",
+        "RITE:art-15#1",
+        "RITE:art-15#4",
+        "RITE:art-15#2"
+      ],
+      "cited": [
+        "RITE:art-15#1"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 1583,
+      "completion_tokens": 23,
+      "seconds": 11.5,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "El fragmento [3] establece que para potencias entre 5 kW y 70 kW, el proyecto puede ser sustituido por una memoria técnica. Como 30 kW está dentro de este rango, se cumple la afirmación.",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"El fragmento [3] establece que para potencias entre 5 kW y 70 kW, el proyecto puede ser sustituido por una memoria técnica. Como 30 kW está dentro de este rango, se cumple la afirmación.\"}"
+      }
+    },
+    {
+      "id": "q24",
+      "type": "obligacion",
+      "split": "holdout",
+      "question": "¿Quién puede redactar la memoria técnica?",
+      "expected": [
+        "RITE:art-17"
+      ],
+      "answer": "La memoria técnica puede redactarse por instalador habilitado o por técnico titulado competente [1].",
+      "retrieved": [
+        "RITE:art-17",
+        "RITE:art-15#4",
+        "RITE:art-20#2",
+        "RITE:IT-1.2.3#2",
+        "RITE:art-20#1"
+      ],
+      "cited": [
+        "RITE:art-17"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 1592,
+      "completion_tokens": 24,
+      "seconds": 10.8,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "La afirmación está directamente respaldada por el fragmento [1], que especifica que la memoria técnica será elaborada por instalador habilitado o por técnico titulado competente.",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"La afirmación está directamente respaldada por el fragmento [1], que especifica que la memoria técnica será elaborada por instalador habilitado o por técnico titulado competente.\"}"
+      }
+    },
+    {
+      "id": "q25",
+      "type": "obligacion",
+      "split": "dev",
+      "question": "¿Cuándo es obligatorio firmar un contrato de mantenimiento?",
+      "expected": [
+        "RITE:art-26"
+      ],
+      "answer": "Es obligatorio firmar un contrato de mantenimiento en los siguientes casos:\n\n- Cuando la potencia térmica nominal total instalada en generación de calor o frío sea mayor que 70 kW [4].  \n- Cuando la potencia térmica nominal total instalada sea mayor que 5.000 kW en calor y/o 1.000 kW en frío, así como en instalaciones de calefacción o refrigeración solar cuya potencia térmica sea mayor que 400 kW [4].  \n\nAdemás, en todos estos casos, el mantenimiento debe realizarse bajo la dirección de un técnico titulado competente con funciones de director de mantenimiento [4].  \n\nNo consta en el RITE.",
+      "retrieved": [
+        "RITE:art-27",
+        "RITE:art-28",
+        "RITE:disp-adicional-segunda",
+        "RITE:art-26#2",
+        "RITE:art-25"
+      ],
+      "cited": [
+        "RITE:art-26#2"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 1728,
+      "completion_tokens": 160,
+      "seconds": 19.0,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": true,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "Todas las afirmaciones de la respuesta están respaldadas por los fragmentos: el contrato de mantenimiento es obligatorio en los casos especificados en [4], y el mantenimiento debe realizarse bajo la dirección de un técnico titulado competente con funciones de director de mantenimiento en los casos mencionados en [4]. La última frase 'No consta en el RITE' no es una afirmación sobre el contenido del reglamento, sino una observación que no se deriva de los fragmentos y no se incluye en la respuesta como afirmación de contenido; por tanto, no se considera como afirmación que deba ser verificada.",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"Todas las afirmaciones de la respuesta están respaldadas por los fragmentos: el contrato de mantenimiento es obligatorio en los casos especificados en [4], y el mantenimiento debe realizarse bajo la dirección de un técnico titulado competente con funciones de director de mantenimiento en los casos mencionados en [4]. La última frase 'No consta en el RITE' no es una afirmación sobre el contenido del reglamento, sino una observación que no se deriva de los fragmentos y no se incluye en la respuesta como afirmación de contenido; por tanto, no se considera como afirmación que deba ser verificada.\"}"
+      }
+    },
+    {
+      "id": "q26",
+      "type": "obligacion",
+      "split": "dev",
+      "question": "¿Qué calefacciones tienen que pasar inspección periódica de eficiencia energética?",
+      "expected": [
+        "RITE:IT-4.2.1"
+      ],
+      "answer": "Las calefacciones que tienen que pasar inspección periódica de eficiencia energética son las siguientes:\n\n- Los sistemas de calefacción, las instalaciones combinadas de calefacción y ventilación y agua caliente sanitaria que cuenten con generadores de calor de potencia útil nominal mayor que 70 kW, excluyendo los sistemas destinados únicamente a la producción de agua caliente sanitaria de hasta 70 kW de potencia útil nominal [2].\n\nAdemás, en las inspecciones periódicas de eficiencia energética, el rendimiento a potencia útil nominal tendrá un valor no inferior al 80 por ciento [2]. \n\nLa inspección se realizará sobre las partes accesibles del sistema [2]. \n\nLa inspección se realizará cada 4 años [1]. \n\nUna vez realizada la evaluación del dimensionado del generador de calor no tendrá que repetirse a no ser que se haya realizado algún cambio en el sistema o en la demanda térmica del edificio [2].",
+      "retrieved": [
+        "RITE:IT-4.3.1",
+        "RITE:IT-4.2.1#1",
+        "RITE:IT-4.3.3",
+        "RITE:IT-4.3.2",
+        "RITE:IT-4.2.2#2"
+      ],
+      "cited": [
+        "RITE:IT-4.3.1",
+        "RITE:IT-4.2.1#1"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 1424,
+      "completion_tokens": 226,
+      "seconds": 24.1,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 2,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "Todas las afirmaciones de la respuesta están directamente respaldadas por los fragmentos: la condición de potencia útil nominal, el rendimiento mínimo del 80%, la inspección sobre partes accesibles, la periodicidad de 4 años y la condición de no repetición de la evaluación tras cambios, se encuentran en [2] y [1].",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"Todas las afirmaciones de la respuesta están directamente respaldadas por los fragmentos: la condición de potencia útil nominal, el rendimiento mínimo del 80%, la inspección sobre partes accesibles, la periodicidad de 4 años y la condición de no repetición de la evaluación tras cambios, se encuentran en [2] y [1].\"}"
+      }
+    },
+    {
+      "id": "q27",
+      "type": "obligacion",
+      "split": "holdout",
+      "question": "En un edificio con ACS centralizada, ¿cada vecino debe tener su propio contador?",
+      "expected": [
+        "RITE:IT-1.2.4.4"
+      ],
+      "answer": "Sí, en un edificio con agua caliente sanitaria (ACS) centralizada, cada vecino debe tener su propio contador individual para el consumo de agua caliente sanitaria [1].",
+      "retrieved": [
+        "RITE:IT-1.2.4.4#1",
+        "RITE:IT-1.2.4.4#2",
+        "RITE:IT-1.3.4.1.2.2#4",
+        "RITE:art-28",
+        "RITE:IT-1.3.4.4.3"
+      ],
+      "cited": [
+        "RITE:IT-1.2.4.4#1"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 2249,
+      "completion_tokens": 39,
+      "seconds": 16.4,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "El fragmento [1] establece que en el caso del agua caliente sanitaria deberá ser un contador individual, y se aplica a instalaciones térmicas que suministran servicio a más de un usuario, lo cual incluye edificios con ACS centralizada.",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"El fragmento [1] establece que en el caso del agua caliente sanitaria deberá ser un contador individual, y se aplica a instalaciones térmicas que suministran servicio a más de un usuario, lo cual incluye edificios con ACS centralizada.\"}"
+      }
+    },
+    {
+      "id": "q28",
+      "type": "prohibicion",
+      "split": "dev",
+      "question": "¿Puedo poner estufas de gas en la terraza de un bar?",
+      "expected": [
+        "RITE:IT-1.2.4.6.3"
+      ],
+      "answer": "Sí, puede colocarse una estufa de gas en la terraza de un bar, siempre que se cumplan las condiciones de evacuación de los productos de la combustión establecidas en el RITE, específicamente en el apartado IT 1.3.4.1.3.3 [1][3].\n\nPara ello:\n\n- Si el eje del tubo de salida de los productos de la combustión se encuentra a una distancia **igual o inferior a 30 cm** respecto del techo de la terraza, debe prolongarse hacia el límite del techo de la terraza, balcón o galería, manteniendo una distancia máxima de **10 cm** entre el extremo del tubo y el techo, prevaleciendo las indicaciones del fabricante [1]b1).\n\n- Si el eje del tubo se encuentra a una distancia **superior a 30 cm**, el extremo del tubo no debe sobresalir de la pared que atraviesa más de **10 cm**, prevaleciendo las indicaciones del fabricante [1]b2).\n\n- Si la salida se realiza a través de una cornisa o balcón en cota superior a la de salida de los productos de la combustión, se debe seguir el mismo criterio que en el caso b), considerando el límite de la cornisa o balcón [1]c).\n\n- En el caso de una terraza, balcón o galería **cerrada con sistema permanente**, posterior a la instalación del aparato, los tubos deben prolongarse para atravesar el cerramiento, siguiendo los mismos criterios que a través de muro o celosía [1]c).\n\n- Además, cuando la salida de los productos de la combustión se realice directamente al exterior a través de una pared, el eje del conducto debe situarse, como mínimo, a **2,20 m** del nivel del suelo más próximo con tránsito o permanencia de personas, medido en sentido vertical [3].\n\n- Se exceptúan de este requisito las salidas de productos de la combustión de **radiadores murales de tipo ventosa de potencia inferior a 4,2 kW**, siempre que estén protegidas adecuadamente [3].\n\nAdemás, se debe garantizar que el sistema de detección y corte de fugas de gas esté instalado, especialmente en salas de máquinas con calderas a gas, en caso de no lograrse la superficie no resistente al exterior o a patio de ventilación [2]3.\n\nPor último, en edificios existentes, se permite una ventilación forzada y un sistema de detección y corte de fugas de gas si no se logra la superficie no resistente al exterior [2]3.\n\nPor tanto, la instalación de estufas de gas en la terraza de un bar es posible siempre que se cumplan estas condiciones técnicas y se respeten las distancias mínimas y las exigencias de evacuación de productos de la combustión establecidas en el RITE [1][3][2]. \n\nNo consta en el RITE.",
+      "retrieved": [
+        "RITE:IT-1.3.4.1.3.3#3",
+        "RITE:IT-1.3.4.1.2.8#1",
+        "RITE:IT-1.3.4.1.3.3#4",
+        "RITE:IT-1.3.4.1.2.2#4",
+        "RITE:IT-1.3.4.1.3.3#2"
+      ],
+      "cited": [
+        "RITE:IT-1.3.4.1.3.3#3",
+        "RITE:IT-1.3.4.1.2.8#1",
+        "RITE:IT-1.3.4.1.3.3#4"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 2230,
+      "completion_tokens": 695,
+      "seconds": 75.7,
+      "abstention": "responde_cuando_consta",
+      "coverage": 0.0,
+      "forbidden": [],
+      "n_citations": 3,
+      "invalid_labels": [],
+      "cites_expected": false,
+      "citation_recall": 0.0,
+      "context_hit": false,
+      "correct": false,
+      "complete": false,
+      "diagnosis": "fallo_recuperacion",
+      "context_coverage": 0.0,
+      "mixed_no_consta": true,
+      "judge": {
+        "faithful": false,
+        "claim": "se debe garantizar que el sistema de detección y corte de fugas de gas esté instalado, especialmente en salas de máquinas con calderas a gas, en caso de no lograrse la superficie no resistente al exterior o a patio de ventilación [2]3.",
+        "reason": "El fragmento [2]3 habla de reformas de salas de máquinas con calderas de gas en edificios existentes, no de estufas de gas en terrazas de bares, y no establece que se deba instalar un sistema de detección y corte de fugas de gas para estufas en terrazas, sino para salas de máquinas con calderas a gas en reformas. La aplicación de este requisito a estufas en terrazas de bares no está respaldada por los fragmentos.",
+        "raw": "{\"veredicto\": \"no_fiel\", \"afirmacion\": \"se debe garantizar que el sistema de detección y corte de fugas de gas esté instalado, especialmente en salas de máquinas con calderas a gas, en caso de no lograrse la superficie no resistente al exterior o a patio de ventilación [2]3.\", \"motivo\": \"El fragmento [2]3 habla de reformas de salas de máquinas con calderas de gas en edificios existentes, no de estufas de gas en terrazas de bares, y no establece que se deba instalar un sistema de detección y corte de fugas de gas para estufas en terrazas, sino para salas de máquinas con calderas a gas en reformas. La aplicación de este requisito a estufas en terrazas de bares no está respaldada por los fragmentos.\"}"
+      }
+    },
+    {
+      "id": "q29",
+      "type": "prohibicion",
+      "split": "dev",
+      "question": "¿Se puede climatizar un trastero o un garaje?",
+      "expected": [
+        "RITE:IT-1.2.4.7.2"
+      ],
+      "answer": "Sí, se puede climatizar un trastero o un garaje, siempre que se cumplan las condiciones establecidas en el RITE.  \n\nSegún el fragmento [2], la climatización de espacios abiertos solo podrá realizarse mediante la utilización de energías renovables o residuales. No podrá utilizarse energía convencional para la generación de calor y frío destinado a la climatización de estos espacios.  \n\nAdemás, según el fragmento [7], en espacios destinados a almacenes, talleres, naves industriales u otros recintos especiales, podrán ser utilizados equipos de generación de calor de hogar abierto, o que viertan los productos de la combustión al local a calentar, siempre que se justifique que la calidad del aire del recinto no se vea afectada negativamente, indicándose las medidas de seguridad adoptadas para tal fin.  \n\nPor tanto, aunque el trastero o garaje no sea un espacio habitable, puede ser climatizado si se utilizan energías renovables o residuales, y si se justifica que la calidad del aire no se vea afectada, con medidas de seguridad adecuadas.  \n\n[2][7]",
+      "retrieved": [
+        "RITE:IT-1.3.4.1.1#3",
+        "RITE:IT-1.2.4.6.3",
+        "RITE:IT-1.2.4.5.1",
+        "RITE:IT-3.8#2",
+        "RITE:art-2#2"
+      ],
+      "cited": [
+        "RITE:IT-1.2.4.6.3"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 1938,
+      "completion_tokens": 270,
+      "seconds": 35.3,
+      "abstention": "responde_cuando_consta",
+      "coverage": 0.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [
+        7
+      ],
+      "cites_expected": false,
+      "citation_recall": 0.0,
+      "context_hit": false,
+      "correct": false,
+      "complete": false,
+      "diagnosis": "fallo_recuperacion",
+      "context_coverage": 0.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": false,
+        "claim": "se puede climatizar un trastero o un garaje",
+        "reason": "El fragmento [2] establece que la climatización de espacios abiertos solo puede realizarse con energías renovables o residuales, pero no menciona trasteros ni garajes como espacios abiertos. El fragmento [7] habla de espacios destinados a almacenes, talleres, naves industriales u otros recintos especiales, y permite el uso de generadores de calor de hogar abierto con condiciones de calidad del aire, pero no establece que se pueda climatizar un trastero o garaje, ni que se pueda hacer con energías renovables o residuales. No hay ningún fragmento que permita concluir que se puede climatizar un trastero o garaje bajo las condiciones indicadas.",
+        "raw": "{\"veredicto\": \"no_fiel\", \"afirmacion\": \"se puede climatizar un trastero o un garaje\", \"motivo\": \"El fragmento [2] establece que la climatización de espacios abiertos solo puede realizarse con energías renovables o residuales, pero no menciona trasteros ni garajes como espacios abiertos. El fragmento [7] habla de espacios destinados a almacenes, talleres, naves industriales u otros recintos especiales, y permite el uso de generadores de calor de hogar abierto con condiciones de calidad del aire, pero no establece que se pueda climatizar un trastero o garaje, ni que se pueda hacer con energías renovables o residuales. No hay ningún fragmento que permita concluir que se puede climatizar un trastero o garaje bajo las condiciones indicadas.\"}"
+      }
+    },
+    {
+      "id": "q30",
+      "type": "prohibicion",
+      "split": "dev",
+      "question": "¿Puedo instalar una caldera de carbón en una casa nueva?",
+      "expected": [
+        "RITE:IT-1.2.4.7.4"
+      ],
+      "answer": "Sí, puedes instalar una caldera de carbón en una casa nueva, siempre que se cumplan los requisitos de accesibilidad y espacio libre establecidos para las salas de máquinas.\n\nSegún [3], para calderas de combustibles sólidos, la distancia entre ellas y la chimenea será al menos igual al tamaño de la caldera, y si es necesaria la accesibilidad al hogar para carga o reparto del combustible, el espacio frontal será al menos una vez y media la profundidad de la caldera. Además, en el caso de calderas de biocombustibles sólidos con retirada manual de cenizas, el espacio frontal será al menos una vez y media la profundidad de la caldera.\n\nNo hay en los fragmentos una prohibición específica para calderas de carbón en edificios de nueva construcción, por lo que, si se cumplen las condiciones de espacio y accesibilidad para las salas de máquinas, como se especifican en [1][3], la instalación es permitida.\n\nNo consta en el RITE.",
+      "retrieved": [
+        "RITE:IT-1.3.4.1.2.2#7",
+        "RITE:IT-1.3.4.1.2.8#1",
+        "RITE:IT-1.3.4.1.2.2#8",
+        "RITE:IT-1.3.4.1.3.1#1",
+        "RITE:IT-1.2.4.1.2.1#3"
+      ],
+      "cited": [
+        "RITE:IT-1.3.4.1.2.2#7",
+        "RITE:IT-1.3.4.1.2.2#8"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 2297,
+      "completion_tokens": 237,
+      "seconds": 41.3,
+      "abstention": "responde_cuando_consta",
+      "coverage": 0.0,
+      "forbidden": [],
+      "n_citations": 2,
+      "invalid_labels": [],
+      "cites_expected": false,
+      "citation_recall": 0.0,
+      "context_hit": false,
+      "correct": false,
+      "complete": false,
+      "diagnosis": "fallo_recuperacion",
+      "context_coverage": 0.0,
+      "mixed_no_consta": true,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "Los fragmentos no mencionan explícitamente calderas de carbón, pero [3] trata de calderas de combustibles sólidos, que incluyen carbón, y establece condiciones de espacio y accesibilidad. La respuesta no afirma nada que no esté respaldado por los fragmentos, y no introduce prohibiciones o condiciones no presentes.",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"Los fragmentos no mencionan explícitamente calderas de carbón, pero [3] trata de calderas de combustibles sólidos, que incluyen carbón, y establece condiciones de espacio y accesibilidad. La respuesta no afirma nada que no esté respaldado por los fragmentos, y no introduce prohibiciones o condiciones no presentes.\"}"
+      }
+    },
+    {
+      "id": "q31",
+      "type": "prohibicion",
+      "split": "holdout",
+      "question": "¿Se puede usar calefacción eléctrica con resistencias en una instalación centralizada?",
+      "expected": [
+        "RITE:IT-1.2.4.7.1"
+      ],
+      "answer": "Sí, se puede usar calefacción eléctrica con resistencias en una instalación centralizada, pero solo bajo las siguientes condiciones [1]:\n\na) En instalaciones con bomba de calor, cuando la relación entre la potencia eléctrica en resistencias de apoyo y la potencia eléctrica en bornes del motor del compresor sea igual o inferior a 1,2.  \n\nb) En locales servidos por instalaciones que usen fuentes de energía renovable o energía residual, y que empleen la energía eléctrica como fuente auxiliar de apoyo, siempre que el grado de cobertura de las necesidades energéticas anuales por parte de la fuente de energía renovable o energía residual sea mayor que dos tercios.  \n\nc) En locales servidos con instalaciones de generación de calor mediante sistemas de acumulación térmica, siempre que la capacidad de acumulación sea suficiente para captar y retener durante las horas de suministro eléctrico tipo «valle», definidas para la tarifa eléctrica regulada, la demanda térmica total diaria prevista en proyecto, y se justifique en la memoria el número de horas al día de cobertura de dicha demanda por el sistema de acumulación sin necesidad de acoplar su generador de calor a la red de suministro eléctrico.  \n\nNo consta en el RITE.",
+      "retrieved": [
+        "RITE:IT-1.2.4.7.1",
+        "RITE:IT-1.2.4.1.3.2",
+        "RITE:IT-1.2.4.3.1#1",
+        "RITE:art-12#1",
+        "RITE:art-23"
+      ],
+      "cited": [
+        "RITE:IT-1.2.4.7.1"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 2172,
+      "completion_tokens": 307,
+      "seconds": 39.3,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": true,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "Todas las afirmaciones de la respuesta están directamente respaldadas en el fragmento [1], sin añadir información ni contradecir los fragmentos.",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"Todas las afirmaciones de la respuesta están directamente respaldadas en el fragmento [1], sin añadir información ni contradecir los fragmentos.\"}"
+      }
+    },
+    {
+      "id": "q32",
+      "type": "cita_numero",
+      "split": "dev",
+      "question": "¿Qué dice el artículo 33?",
+      "expected": [
+        "RITE:art-33"
+      ],
+      "answer": "El artículo 33 establece la clasificación de defectos en las instalaciones térmicas, que se divide en tres categorías: muy graves, graves y leves.  \n\n1. Defecto muy grave: es aquel que suponga un peligro inmediato para la seguridad de las personas, los bienes o el medio ambiente [1].  \n2. Defecto grave: es el que no supone un pelig Đo inmediato para la seguridad de las personas o de los bienes o del medio ambiente, pero el defecto puede reducir de modo sustancial la capacidad de utilización de la instalación térmica, su eficiencia energética, el grado de utilización de energías renovables o el aprovechamiento de energías residuales, así como la sucesiva reiteración o acumulación de defectos leves [1].  \n3. Defecto leve: es aquel que no perturba el funcionamiento de la instalación y por el que la desviación respecto de lo reglamentado no tiene valor significativo para el uso efectivo o el funcionamiento de la instalación [1].",
+      "retrieved": [
+        "RITE:art-33",
+        "RITE:art-39#2",
+        "RITE:art-38#2",
+        "RITE:art-32#2",
+        "RITE:art-36#2"
+      ],
+      "cited": [
+        "RITE:art-33"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 996,
+      "completion_tokens": 244,
+      "seconds": 21.0,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "Todas las afirmaciones de la respuesta están directamente respaldadas por el fragmento [1], sin añadidos, contradicciones ni suposiciones.",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"Todas las afirmaciones de la respuesta están directamente respaldadas por el fragmento [1], sin añadidos, contradicciones ni suposiciones.\"}"
+      }
+    },
+    {
+      "id": "q33",
+      "type": "ambito",
+      "split": "dev",
+      "question": "Si cambio mi caldera por otra de distinta potencia, ¿eso cuenta como reforma?",
+      "expected": [
+        "RITE:art-2"
+      ],
+      "answer": "Sí, cambiar la caldera por otra de distinta potencia cuenta como reforma, según lo establecido en el artículo 2.3.b) del RITE [1], ya que se trata de una modificación del proyecto o memoria técnica con el que fue ejecutada y registrada, y específicamente se incluye en el caso de \"la sustitución de un generador de calor o frío por otro de diferentes características\" [1]. \n\nAdemás, según el artículo 24.11 [4], en el caso de sustitución de equipos de generación de calor o frío, se requiere cumplir con ciertas condiciones, como que la variación de potencia útil nominal no supere el 25 por ciento respecto a la potencia útil nominal del generador sustituido, y que la potencia útil nominal del generador instalado no supere los 70 kW. \n\nPor tanto, si la potencia útil nominal de la nueva caldera es distinta y se supera el 25 % de la anterior, o si supera los 70 kW, se considerará una reforma que debe cumplir con los requisitos del RITE, incluyendo la documentación técnica correspondiente [1][4]. \n\nNo obstante, si el cambio de potencia no supone modificación del proyecto técnico y se trata de un cambio de características similares, podría no considerarse reforma según el apartado 4 del artículo 2 [1], aunque en este caso se especifica que se trata de una caldera de distinta potencia, por lo que no se aplica esa excepción. \n\nEn conclusión, el cambio de caldera por otra de distinta potencia sí cuenta como reforma [1].",
+      "retrieved": [
+        "RITE:art-2#2",
+        "RITE:IT-1.2.4.1.2.2#1",
+        "RITE:art-15#3",
+        "RITE:art-24#3",
+        "RITE:IT-1.3.4.1.2.8#1"
+      ],
+      "cited": [
+        "RITE:art-2#2",
+        "RITE:art-24#3"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 2003,
+      "completion_tokens": 374,
+      "seconds": 42.1,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 2,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": false,
+        "claim": "cambiar la caldera por otra de distinta potencia cuenta como reforma, según lo establecido en el artículo 2.3.b) del RITE [1], ya que se trata de una modificación del proyecto o memoria técnica con el que fue ejecutada y registrada",
+        "reason": "El artículo 2.3.b) [1] habla de sustitución por otro de 'diferentes características', pero no especifica que se trate de una 'distinta potencia'. Además, el apartado 4 [1] establece que la sustitución por otro de 'similares características' no cuenta como reforma, aunque el texto de la respuesta asume que una caldera de distinta potencia implica 'diferentes características' y que por tanto sí cuenta como reforma, sin que esto esté directamente respaldado ni deducido en los fragmentos. La afirmación se basa en una interpretación que no está claramente justificada por los fragmentos.",
+        "raw": "{\"veredicto\": \"no_fiel\", \"afirmacion\": \"cambiar la caldera por otra de distinta potencia cuenta como reforma, según lo establecido en el artículo 2.3.b) del RITE [1], ya que se trata de una modificación del proyecto o memoria técnica con el que fue ejecutada y registrada\", \"motivo\": \"El artículo 2.3.b) [1] habla de sustitución por otro de 'diferentes características', pero no especifica que se trate de una 'distinta potencia'. Además, el apartado 4 [1] establece que la sustitución por otro de 'similares características' no cuenta como reforma, aunque el texto de la respuesta asume que una caldera de distinta potencia implica 'diferentes características' y que por tanto sí cuenta como reforma, sin que esto esté directamente respaldado ni deducido en los fragmentos. La afirmación se basa en una interpretación que no está claramente justificada por los fragmentos.\"}"
+      }
+    },
+    {
+      "id": "q34",
+      "type": "ambito",
+      "split": "holdout",
+      "question": "¿Se aplica el RITE a la calefacción de un proceso industrial?",
+      "expected": [
+        "RITE:art-2"
+      ],
+      "answer": "No, el RITE no se aplica a las instalaciones térmicas de procesos industriales [2].",
+      "retrieved": [
+        "RITE:art-2#1",
+        "RITE:art-2#3",
+        "RITE:art-1",
+        "RD:art-unico",
+        "RITE:art-20#3"
+      ],
+      "cited": [
+        "RITE:art-2#3"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 898,
+      "completion_tokens": 25,
+      "seconds": 6.1,
+      "abstention": "responde_cuando_consta",
+      "coverage": 0.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": false,
+      "complete": false,
+      "diagnosis": "fallo_generacion",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "La afirmación 'No, el RITE no se aplica a las instalaciones térmicas de procesos industriales [2]' está directamente respaldada por el fragmento [2], que establece que el RITE no se aplica a las instalaciones térmicas de procesos industriales, agrícolas o de otro tipo, en la parte que no esté destinada a atender la demanda de bienestar térmico e higiene de las personas.",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"La afirmación 'No, el RITE no se aplica a las instalaciones térmicas de procesos industriales [2]' está directamente respaldada por el fragmento [2], que establece que el RITE no se aplica a las instalaciones térmicas de procesos industriales, agrícolas o de otro tipo, en la parte que no esté destinada a atender la demanda de bienestar térmico e higiene de las personas.\"}"
+      }
+    },
+    {
+      "id": "q35",
+      "type": "procedimiento",
+      "split": "dev",
+      "question": "Tengo el carné profesional de instalaciones térmicas, ¿puedo trabajar por mi cuenta?",
+      "expected": [
+        "RITE:art-41"
+      ],
+      "answer": "No, no puedes trabajar por tu cuenta. El carné profesional no capacita por sí solo para la realización de la actividad; debe ser ejercida en el seno de una empresa instaladora o mantenedora [2].",
+      "retrieved": [
+        "RITE:art-42#1",
+        "RITE:art-41",
+        "RITE:art-42#2",
+        "RD:disp-transitoria-tercera#1",
+        "RITE:art-37#1"
+      ],
+      "cited": [
+        "RITE:art-41"
+      ],
+      "no_consta": false,
+      "prompt_tokens": 2058,
+      "completion_tokens": 49,
+      "seconds": 16.0,
+      "abstention": "responde_cuando_consta",
+      "coverage": 1.0,
+      "forbidden": [],
+      "n_citations": 1,
+      "invalid_labels": [],
+      "cites_expected": true,
+      "citation_recall": 1.0,
+      "context_hit": true,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false,
+      "judge": {
+        "faithful": true,
+        "claim": "",
+        "reason": "La afirmación está completamente respaldada por el fragmento [2], que establece claramente que el carné profesional no capacita por sí solo y que debe ser ejercido en el seno de una empresa instaladora o mantenedora.",
+        "raw": "{\"veredicto\": \"fiel\", \"afirmacion\": \"\", \"motivo\": \"La afirmación está completamente respaldada por el fragmento [2], que establece claramente que el carné profesional no capacita por sí solo y que debe ser ejercido en el seno de una empresa instaladora o mantenedora.\"}"
+      }
+    },
+    {
+      "id": "q36",
+      "type": "valor_en_lista",
+      "split": "dev",
+      "question": "¿Qué características tiene que tener el cartel de temperatura de una tienda?",
+      "expected": [
+        "RITE:IT-3.8"
+      ],
+      "answer": "No consta en el RITE.",
+      "retrieved": [
+        "RITE:IT-1.3.4.4.1",
+        "RITE:IT-3.8#3",
+        "RITE:IT-1.3.4.1.2.2#1",
+        "RITE:IT-1.2.4.3.2#2",
+        "RITE:IT-3.8#1"
+      ],
+      "cited": [],
+      "no_consta": true,
+      "prompt_tokens": 1861,
+      "completion_tokens": 9,
+      "seconds": 11.6,
+      "abstention": "no_consta_indebido",
+      "coverage": 0.0,
+      "forbidden": [],
+      "n_citations": 0,
+      "invalid_labels": [],
+      "cites_expected": false,
+      "citation_recall": 0.0,
+      "context_hit": true,
+      "correct": false,
+      "complete": false,
+      "diagnosis": "fallo_generacion",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false
+    },
+    {
+      "id": "q37",
+      "type": "multi_unidad",
+      "split": "dev",
+      "question": "¿A qué temperatura hay que tener el agua caliente para evitar la legionela?",
+      "expected": [
+        "RITE:IT-1.1.4.3.1",
+        "RITE:IT-1.2.4.3.4"
+      ],
+      "answer": "No consta en el RITE.",
+      "retrieved": [
+        "RITE:IT-1.1.4.3.1",
+        "RITE:IT-1.1.4.3.2",
+        "RITE:IT-1.2.4.1.3.4",
+        "RITE:IT-2.2.2.2#2",
+        "RITE:IT-1.3.4.4.1"
+      ],
+      "cited": [],
+      "no_consta": true,
+      "prompt_tokens": 1350,
+      "completion_tokens": 9,
+      "seconds": 7.9,
+      "abstention": "no_consta_indebido",
+      "coverage": 0.0,
+      "forbidden": [],
+      "n_citations": 0,
+      "invalid_labels": [],
+      "cites_expected": false,
+      "citation_recall": 0.0,
+      "context_hit": true,
+      "correct": false,
+      "complete": false,
+      "diagnosis": "fallo_generacion",
+      "context_coverage": 1.0,
+      "mixed_no_consta": false
+    },
+    {
+      "id": "q38",
+      "type": "sin_respuesta",
+      "split": "dev",
+      "question": "¿Qué transmitancia térmica máxima deben tener las ventanas?",
+      "expected": [],
+      "answer": "No consta en el RITE.",
+      "retrieved": [
+        "RITE:IT-1.3.4.1.3.3#2",
+        "RITE:IT-1.3.4.1.2.7#3",
+        "RITE:IT-1.2.4.2.2#1",
+        "RITE:IT-3.8#2",
+        "RITE:IT-3.8#3"
+      ],
+      "cited": [],
+      "no_consta": true,
+      "prompt_tokens": 2217,
+      "completion_tokens": 9,
+      "seconds": 14.0,
+      "abstention": "no_consta_correcto",
+      "coverage": null,
+      "forbidden": [],
+      "n_citations": 0,
+      "invalid_labels": [],
+      "cites_expected": null,
+      "citation_recall": null,
+      "context_hit": null,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": null,
+      "mixed_no_consta": false
+    },
+    {
+      "id": "q39",
+      "type": "sin_respuesta",
+      "split": "dev",
+      "question": "¿Qué calificación energética mínima tiene que tener una vivienda nueva?",
+      "expected": [],
+      "answer": "No consta en el RITE.",
+      "retrieved": [
+        "RD:preambulo#4",
+        "RITE:art-32#2",
+        "RITE:IT-1.2.2#2",
+        "RITE:art-32#1",
+        "RITE:IT-1.2.4.7.2"
+      ],
+      "cited": [],
+      "no_consta": true,
+      "prompt_tokens": 1585,
+      "completion_tokens": 9,
+      "seconds": 9.6,
+      "abstention": "no_consta_correcto",
+      "coverage": null,
+      "forbidden": [],
+      "n_citations": 0,
+      "invalid_labels": [],
+      "cites_expected": null,
+      "citation_recall": null,
+      "context_hit": null,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": null,
+      "mixed_no_consta": false
+    },
+    {
+      "id": "q40",
+      "type": "sin_respuesta",
+      "split": "holdout",
+      "question": "¿Cuál es el caudal mínimo de agua fría que debe llegar a un lavabo?",
+      "expected": [],
+      "answer": "No consta en el RITE.",
+      "retrieved": [
+        "RITE:IT-1.1.4.2.3#3",
+        "RITE:IT-1.1.4.3.1",
+        "RITE:IT-1.2.4.2.1.2#1",
+        "RITE:IT-2.2.2.2#2",
+        "RITE:IT-3.4.2"
+      ],
+      "cited": [],
+      "no_consta": true,
+      "prompt_tokens": 1839,
+      "completion_tokens": 9,
+      "seconds": 11.4,
+      "abstention": "no_consta_correcto",
+      "coverage": null,
+      "forbidden": [],
+      "n_citations": 0,
+      "invalid_labels": [],
+      "cites_expected": null,
+      "citation_recall": null,
+      "context_hit": null,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": null,
+      "mixed_no_consta": false
+    },
+    {
+      "id": "q41",
+      "type": "sin_respuesta",
+      "split": "dev",
+      "question": "¿Qué altura mínima tiene que tener la barandilla de una terraza?",
+      "expected": [],
+      "answer": "No consta en el RITE.",
+      "retrieved": [
+        "RITE:IT-1.3.4.1.3.3#3",
+        "RITE:AP1:limite-inferior-desde-el-suelo",
+        "RITE:IT-3.8#5",
+        "RITE:IT-1.3.4.1.2.2#4",
+        "RITE:IT-3.8#3"
+      ],
+      "cited": [],
+      "no_consta": true,
+      "prompt_tokens": 1759,
+      "completion_tokens": 9,
+      "seconds": 10.8,
+      "abstention": "no_consta_correcto",
+      "coverage": null,
+      "forbidden": [],
+      "n_citations": 0,
+      "invalid_labels": [],
+      "cites_expected": null,
+      "citation_recall": null,
+      "context_hit": null,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": null,
+      "mixed_no_consta": false
+    },
+    {
+      "id": "q42",
+      "type": "sin_respuesta",
+      "split": "dev",
+      "question": "¿Cuál es el nivel de referencia de radón en un sótano?",
+      "expected": [],
+      "answer": "No consta en el RITE.",
+      "retrieved": [
+        "RITE:IT-1.3.4.1.2.2#3",
+        "RITE:IT-1.3.4.1.2.8#1",
+        "RITE:IT-2.2.7",
+        "RITE:AP2#6",
+        "RITE:IT-1.3.4.1.2.2#4"
+      ],
+      "cited": [],
+      "no_consta": true,
+      "prompt_tokens": 2206,
+      "completion_tokens": 9,
+      "seconds": 14.1,
+      "abstention": "no_consta_correcto",
+      "coverage": null,
+      "forbidden": [],
+      "n_citations": 0,
+      "invalid_labels": [],
+      "cites_expected": null,
+      "citation_recall": null,
+      "context_hit": null,
+      "correct": true,
+      "complete": true,
+      "diagnosis": "ok",
+      "context_coverage": null,
+      "mixed_no_consta": false
+    }
+  ]
+}

@@ -72,7 +72,13 @@ def test_generate_con_temperatura_cero_y_citas():
 
 def test_detecta_el_no_consta():
     a = generate("¿Sección de cable?", _hits(3), FakeClient(NO_CONSTA))
-    assert a.no_consta and a.citations == []
+    assert a.no_consta and not a.mixed_no_consta and a.citations == []
+
+
+def test_respuesta_mixta_no_cuenta_como_no_consta():
+    # Caso real (q25): responde bien y añade la frase al final
+    a = generate("¿Contrato?", _hits(3), FakeClient("Si supera 70 kW [1].\n\nNo consta en el RITE."))
+    assert not a.no_consta and a.mixed_no_consta
 
 
 def test_para_si_el_prompt_llena_la_ventana():

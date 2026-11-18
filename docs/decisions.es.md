@@ -8,6 +8,28 @@ Una entrada por decisión: contexto, opciones consideradas, decisión y cómo sa
 
 ---
 
+## ADR-008 · Evaluación: golden set por unidad, nota por código y juez LLM solo como alarma
+
+**Fecha:** 2026-11-18 · **Estado:** aceptada
+
+**Contexto.** La Fase 2 necesita números que sigan siendo comparables al cambiar el prompt, el chunking o el modelo. El generador y el único juez local son modelos de 4B.
+
+**Opciones.**
+- Corregir las respuestas solo con un juez LLM (lo habitual en los tutoriales).
+- Corregir con comprobaciones deterministas en código (datos obligatorios, datos prohibidos, «No consta», citas) y usar un juez para la fidelidad, que el código no puede comprobar.
+- Comparar la recuperación por id de chunk, o por unidad del reglamento (artículo, instrucción técnica, definición).
+
+**Decisión.**
+- Golden set de 42 preguntas (`eval/golden_set.jsonl`) con **unidades** esperadas, para que sobreviva a los cambios de chunking; 6 preguntas sin respuesta; 8 reservadas.
+- Recuperación y generación se miden por separado. Cada fallo de generación se diagnostica como fallo de recuperación (los datos no llegaron al modelo) o fallo de generación.
+- La nota oficial es la del código (`correct`, `complete`). El juez LLM (`judge.py`) se usa como alarma de respuestas infieles, no como nota.
+
+**Por qué.** Al calibrar el juez (qwen3:4b-instruct) sobre sus 30 respuestas salieron 28/30 de acuerdo y kappa de Cohen 0,71, pero dejó pasar 2 de las 5 respuestas infieles, entre ellas q30 («Sí, puedes instalar una caldera de carbón en una casa nueva»), el tipo de error más peligroso. Detecta las afirmaciones fuera de tema y se le escapan las conclusiones sacadas de la ausencia de una norma y las generalizaciones. Además juzga las respuestas de su propio modelo. Salvedad: las etiquetas de referencia las puso Claude, no un experto, porque los veredictos del juez se vieron antes de etiquetar.
+
+**Cómo sabremos si era un error.** Si un juez más fuerte o distinto (un modelo local mayor, o Azure OpenAI con el mismo cliente) llega a kappa ≥ 0,6 sin dejar pasar ninguna respuesta infiel en una muestra etiquetada por una persona, el juez podrá entrar en la nota.
+
+---
+
 ## ADR-007 · Generador: qwen3:4b-instruct en Ollama, con un prompt que solo deja citar etiquetas
 
 **Fecha:** 2026-11-16 · **Estado:** aceptada (a confirmar con la evaluación de la Fase 2)

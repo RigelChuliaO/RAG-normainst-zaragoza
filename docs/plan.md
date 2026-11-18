@@ -6,9 +6,9 @@
 
 > Si retomas el proyecto en una conversación nueva, empieza por aquí.
 
-**Fase actual:** **Fase 1**. Piezas cerradas y subidas a `main`: 1 extracción (`c30e6b6`, ADR-004), 2 chunking (`d07eb06`, ADR-005) y 3 embeddings e índice (`af06419`, ADR-006) y 4 recuperación (`ae8cb8e`). **Pieza 5 (generación)** funcionando (ADR-007): falta el commit que cierra la Fase 1.
+**Fase actual:** **Fase 2B (port a LangChain)**. La **Fase 2 está cerrada**: golden set de 42 preguntas, evaluación de recuperación y generación, juez LLM calibrado (ADR-008) y baseline v0 en el README. La Fase 1: 1 extracción (`c30e6b6`, ADR-004), 2 chunking (`d07eb06`, ADR-005), 3 embeddings e índice (`af06419`, ADR-006), 4 recuperación (`ae8cb8e`) y 5 generación (`50f8941`, ADR-007).
 
-**Siguiente tarea:** la primera casilla sin marcar de la Fase 1, en [Tareas por fase](#tareas-por-fase).
+**Siguiente tarea:** la primera casilla sin marcar de la Fase 2B, en [Tareas por fase](#tareas-por-fase).
 
 ### Progreso
 
@@ -17,8 +17,8 @@ Leyenda: ✅ terminada · 🔄 en curso · ⬜ sin empezar. En las listas, `[x]`
 | Fase | Estado | Tareas hechas | Horas (estimadas) |
 | --- | --- | --- | --- |
 | F0 · Repositorio y esqueleto | ✅ | 9 / 9 | 2 / 2 h |
-| F1 · RAG mínimo en Python puro | 🔄 | 30 / 31 | 13,6 / 14 h |
-| F2 · Evaluación | ⬜ | 0 / 10 | 0 / 8 h |
+| F1 · RAG mínimo en Python puro | ✅ | 31 / 31 | 14 / 14 h |
+| F2 · Evaluación | ✅ | 10 / 10 | 8 / 8 h |
 | F2B · Port a LangChain | ⬜ | 0 / 6 | 0 / 6 h |
 | F3 · Docker | ⬜ | 0 / 11 | 0 / 12 h |
 | F4 · API e interfaz | ⬜ | 0 / 8 | 0 / 8 h |
@@ -26,7 +26,7 @@ Leyenda: ✅ terminada · 🔄 en curso · ⬜ sin empezar. En las listas, `[x]`
 | F6 · Grafo de conocimiento | ⬜ | 0 / 8 | 0 / 20 h |
 | F7 · Function calling y agentes | ⬜ | 0 / 7 | 0 / 12 h |
 | F8 · Airflow (opcional) | ⬜ | 0 / 6 | 0 / 20 h |
-| **Total** | | **39 / 102** | **15,6 / 112 h** |
+| **Total** | | **50 / 102** | **24 / 112 h** |
 
 **Cómo se trabaja en local (para no repetir errores ya cometidos):**
 
@@ -44,7 +44,7 @@ Leyenda: ✅ terminada · 🔄 en curso · ⬜ sin empezar. En las listas, `[x]`
 - [x] **Modelo de embeddings:** empezar con `multilingual-e5-base` en CPU; comparar con e5-small y bge-m3 en la Fase 2 (ADR-006).
 - [x] **Tablas en los chunks:** en la Fase 1, texto tal cual + título de la tabla; mejora medible después.
 - [ ] **VRAM (opcional):** el 4b-instruct funciona repartido CPU/GPU en 12-21 s; liberar VRAM lo aceleraría. Antes: con el escritorio abierto hay ~2 GB ocupados (30 procesos: Oculus, Steam, Unity Hub, ChatGPT, Copilot, Autodesk, navegadores…). Liberarla cerrando programas y asignando las apps de escritorio a la gráfica Intel (Configuración → Pantalla → Gráficos), y medir si Qwen 3-4B en Q4 cabe entero; si no, probar Qwen3 1,7B.
-- [ ] **Completitud de las respuestas (Fase 2):** el modelo es fiel pero escueto (omite la IT 3.8 en la pregunta de la temperatura). Medirlo en el golden set y probar few-shot o re-ranking.
+- [ ] **Completitud y «no consta» (medido en la Fase 2):** completas 0,74; q06 sigue sin la IT 3.8; 5 respuestas mixtas (responden y añaden «No consta»); y cuando la recuperación falla inventa «Sí, puede» (q28-q30). Probar en la Fase 5: reescribir la pregunta al vocabulario del RITE, re-ranking y ajustar la regla 3 del prompt; medir siempre contra la baseline.
 - [ ] **Relaciones "modifica" (Fase 6):** no están en el PDF consolidado; hay que sacarlas del HTML o del análisis del BOE.
 - [ ] **Pendiente técnico de la Fase 3:** lockfile con versiones exactas (ver ADR-003).
 
@@ -212,26 +212,26 @@ Se marcan con `[x]` al terminarlas, y se actualiza la tabla de [Progreso](#progr
 - [x] Búsqueda top-k con Chroma (`retrieve.py`: `Retriever.search`, comprueba que el índice es del mismo modelo). · *0,25 h*
 - [x] 5 preguntas cuya respuesta conoces, revisando qué chunks se recuperan. *Semilla del golden set en `eval/golden_seed.jsonl` (6 preguntas). De las 4 con respuesta: hit@1 2/4, hit@5 3/4, MRR 0,56. Falla la que cita un número de IT (q04, la búsqueda semántica no entiende códigos) y la de periodicidad sale 4.ª (q03). La pregunta sin respuesta (q05) puntúa 0,825, igual que las buenas: la similitud no sirve para detectar que no hay respuesta.* · *0,5 h*
 
-**Pieza 5 — Generación y entregable**
+**Pieza 5 — Generación y entregable** (commit `50f8941`)
 
 - [x] Prompt con los chunks etiquetados; la cita la construye el código desde los metadatos. Instrucción explícita de responder «no consta» si los chunks no contienen la respuesta (la similitud no lo detecta: q05). Mejora barata: si la pregunta cita «IT x.y.z» o «artículo N», buscar ese chunk por id antes que por similitud (q04). · *0,5 h*
 - [x] Cliente `openai` contra Ollama `/v1`: **`qwen3:4b-instruct`** (el `qwen3:4b` de Ollama es la variante que siempre razona; el 1.7b no cita). ADR-007. · *0,25 h*
 - [x] `answer(question) -> Answer` (texto, citas, ids recuperados). · *0,5 h*
 - [x] Script de línea de comandos que responde citando el artículo. Prueba con 4 preguntas: «¿Qué es el RITE?» ✅ (sin RAG inventaba), temperatura ⚠️ correcta pero sin la IT 3.8 (completitud), IT 1.2.4.7.4 ✅ por id, cable ✅ «no consta». 12-21 s por respuesta. · *0,25 h*
-- [ ] README (inglés) y `decisions.md` actualizados; commit de la Fase 1. · *0,4 h*
+- [x] README (inglés) y `decisions.md` actualizados; commit de la Fase 1. · *0,4 h*
 
-### F2 · Evaluación ⬜
+### F2 · Evaluación ✅
 
-- [ ] Golden set de 30-50 preguntas escritas por ti, con artículos correctos y respuesta esperada. · *2 h*
-- [ ] Incluir preguntas sin respuesta en el corpus (¿dice "no consta"?). · *0,5 h*
-- [ ] Métricas de recuperación: *hit rate@k*, *recall@k*, *MRR*. · *1 h*
-- [ ] Métricas de generación: *faithfulness* y *answer correctness*. · *1 h*
-- [ ] *LLM-as-a-judge* calibrado contra tu juicio en una muestra. · *1 h*
-- [ ] Desglose de errores por tipo de pregunta. · *0,5 h*
-- [ ] `eval/run_eval.py --pipeline pure`, con resultados fechados en `eval/results/`. · *1 h*
-- [ ] *Regression suite*: correr la evaluación al cambiar el prompt o el chunking. · *0,5 h*
-- [ ] Baseline v0 publicada en el README. · *0,25 h*
-- [ ] Commit de la Fase 2. · *0,25 h*
+- [x] Golden set de 30-50 preguntas escritas por ti, con artículos correctos y respuesta esperada. *Borrador de la IA aceptado: `eval/golden_set.jsonl`, 42 preguntas en 14 tipos, ids por unidad (sobreviven a cambios de chunking), 8 reservadas (`holdout`) para no sobreajustar.* · *2 h*
+- [x] Incluir preguntas sin respuesta en el corpus (¿dice "no consta"?). *6, de temas cercanos (REBT, CTE, certificación energética) para tentar al modelo.* · *0,5 h*
+- [x] Métricas de recuperación: *hit rate@k*, *recall@k*, *MRR*. *`metrics.py` (por unidad) y `eval/run_eval.py`. Baseline del 16/11 (e5-base, k=5, con búsqueda por id): hit@1 0,58 · hit@5 0,86 · recall@5 0,85 · MRR 0,70; sin búsqueda por id, hit@5 0,83 (solo cae q04). 5 fallos, 3 de ellos de prohibiciones (q28 terraza, q29 trastero, q30 carbón): brecha de vocabulario entre el usuario y el RITE; hit@10 = hit@5, así que subir k no lo arregla. La similitud del top-1 no separa las preguntas sin respuesta (máx 0,847 > mín 0,788 de las que sí tienen).* · *1 h*
+- [x] Métricas de generación: *faithfulness* y *answer correctness*. *Corrección por código (correcta 0,76, completa 0,74) y fidelidad con juez LLM (0,90 según el juez, 0,83 según las etiquetas de referencia).* · *1 h*
+- [x] *LLM-as-a-judge* calibrado contra tu juicio en una muestra. *`judge.py` y `eval/calibrate.py`. Sobre 30 respuestas: acuerdo 28/30, kappa 0,71, pero dejó pasar 2 de 5 infieles (q25 y q30, la de la caldera de carbón): queda como alarma, no como nota (ADR-008). Salvedad: el juez se ejecutó antes de etiquetar, así que las etiquetas de referencia las puso Claude, no tú.* · *1 h*
+- [x] Desglose de errores por tipo de pregunta. *Por tipo y por split en las dos etapas, y diagnóstico de cada fallo: 7 de recuperación y 3 de generación (los datos llegaron y respondió mal). Las prohibiciones son lo peor: 1 de 4.* · *0,5 h*
+- [x] `eval/run_eval.py --pipeline pure`, con resultados fechados en `eval/results/`. *Etapas `retrieval` y `generation`, `--ids`, `--no-lookup`. Generación del 17/11 (corrector v2): 0,76 correctas, 0,74 completas, 0 invenciones en las 6 sin respuesta; pero cuando la recuperación falla inventa «Sí, puede» (q28-q30), y 5 respuestas son mixtas (responden y añaden «No consta»).* · *1 h*
+- [x] *Regression suite*: correr la evaluación al cambiar el prompt o el chunking. *Resultados fechados con su commit, y `--rescore` para recorregir respuestas guardadas cuando cambia el corrector o el golden set (no el sistema). Revisar a mano los fallos destapó 3 errores del corrector (respuestas mixtas, diagnóstico por unidad en vez de por datos) y 3 del solucionario (q02: el RITE se contradice sobre IDA 2; q18; q23).* · *0,5 h*
+- [x] Baseline v0 publicada en el README. · *0,25 h*
+- [x] Commit de la Fase 2. *Mensaje en `.git/MSG_F2_RECUPERACION.txt`.* · *0,25 h*
 
 ### F2B · Port a LangChain ⬜
 

@@ -6,6 +6,28 @@ One entry per decision: context, options considered, decision, and how we will k
 
 ---
 
+## ADR-008 · Evaluation: golden set by unit, code-based grading first, LLM judge only as an alarm
+
+**Date:** 2026-11-18 · **Status:** accepted
+
+**Context.** Phase 2 needs numbers that stay comparable across prompt, chunking and model changes. The generator and the only local judge are 4B models.
+
+**Options.**
+- Grade answers with an LLM judge only (common in tutorials).
+- Grade with deterministic code checks (required facts, forbidden facts, «No consta», citations) and use a judge for faithfulness, which code cannot check.
+- Compare retrieval by chunk id, or by regulation unit (article, technical instruction, definition).
+
+**Decision.**
+- 42-question golden set (`eval/golden_set.jsonl`) with expected **units**, so it survives chunking changes; 6 unanswerable questions; 8 held out.
+- Retrieval and generation are measured separately. Each generation failure is diagnosed as a retrieval failure (the required facts never reached the model) or a generation failure.
+- The official grade is the code-based one (`correct`, `complete`). The LLM judge (`judge.py`) is used as an alarm for unfaithful answers, not as the grade.
+
+**Why.** Calibrating the judge (qwen3:4b-instruct) on its 30 answers gave 28/30 agreement and Cohen's kappa 0.71, but it let 2 of 5 unfaithful answers through, including q30 («Yes, you can install a coal boiler in a new house»), the most dangerous kind of error. It catches off-topic claims and misses conclusions drawn from the absence of a rule and over-generalisations. It also grades its own model's answers. Caveat: the reference labels were written by Claude, not by a domain expert, because the judge's verdicts were seen before labelling.
+
+**How we will know it was wrong.** If a stronger or different judge (a larger local model, or Azure OpenAI through the same client) reaches kappa ≥ 0.6 with no unfaithful answer let through on a human-labelled sample, the judge can become part of the grade.
+
+---
+
 ## ADR-007 · Generator: qwen3:4b-instruct through Ollama, with a citation-only prompt
 
 **Date:** 2026-11-16 · **Status:** accepted (to be confirmed by the Phase 2 evaluation)

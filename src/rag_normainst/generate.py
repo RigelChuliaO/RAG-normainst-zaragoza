@@ -37,6 +37,16 @@ Reglas obligatorias:
 CITE_RE = re.compile(r"\[(\d+)\]")
 
 
+def is_no_consta(text: str) -> bool:
+    """¿La respuesta es SOLO «No consta en el RITE.»? (sin comillas, puntos ni espacios de más)."""
+    return text.strip().strip('"«»*. ').lower() == NO_CONSTA.rstrip(".").lower()
+
+
+def mentions_no_consta(text: str) -> bool:
+    """¿Aparece la frase en algún sitio? Si además hay respuesta, es una respuesta MIXTA."""
+    return NO_CONSTA.rstrip(".").lower() in text.lower()
+
+
 @dataclass
 class Citation:
     label: int
@@ -56,7 +66,8 @@ class Answer:
     citations: list[Citation] = field(default_factory=list)  # solo las que el modelo usó
     retrieved_ids: list[str] = field(default_factory=list)    # lo que se le pasó
     invalid_labels: list[int] = field(default_factory=list)   # marcas sin chunk: alarma
-    no_consta: bool = False
+    no_consta: bool = False          # la respuesta es SOLO «No consta en el RITE.»
+    mixed_no_consta: bool = False    # responde Y añade «No consta» (p. ej. al final)
     prompt_tokens: int | None = None
     completion_tokens: int | None = None
     seconds_retrieve: float = 0.0
@@ -121,7 +132,8 @@ def generate(question: str, hits, client, model: str = DEFAULT_LLM) -> Answer:
         citations=citations,
         retrieved_ids=[h.id for h in hits],
         invalid_labels=invalid,
-        no_consta=NO_CONSTA.rstrip(".").lower() in text.lower(),
+        no_consta=is_no_consta(text),
+        mixed_no_consta=mentions_no_consta(text) and not is_no_consta(text),
         prompt_tokens=prompt_tokens,
         completion_tokens=getattr(usage, "completion_tokens", None),
         seconds_generate=seconds,
